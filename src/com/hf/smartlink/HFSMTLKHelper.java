@@ -3,9 +3,6 @@ package com.hf.smartlink;
 import com.hf.itf.IHFSMTLKHelper;
 
 public class HFSMTLKHelper implements IHFSMTLKHelper{
-	public static int SMRTLKV2 = 1;
-	public static int SMRTLKV3 = 2;
-	public static int SMRTLKv4 = 3;
 	
 	@Override
 	public void startSmartlinkV30(String pswd) {

@@ -43,26 +43,26 @@ public class HFModuleManager implements IHFModuleManager {
 	}
 	
 	
-	
-	
 	@Override
 	public void login() throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "login");
 		String logindata = "{'PL':{'accessKey':'#acesskey#','userName':'#username#','password':'#password#','agingTime':300000,'mac':'#mac#','clientName':'#phoneName#'},'CID':10011}";
 		String phoneName = android.os.Build.MANUFACTURER;
-		logindata.replaceAll("#acesskey#", HFConfigration.accessKey);
-		logindata.replaceAll("#username#", HFConfigration.cloudUserName);
-		logindata.replaceAll("#password#", HFConfigration.cloudPassword);
-		logindata.replaceAll("#mac#", getMacAddress());
-		logindata.replaceAll("#phoneName#", phoneName);
+		logindata = logindata.replaceAll("#acesskey#", HFConfigration.accessKey);
+		logindata = logindata.replaceAll("#username#", HFConfigration.cloudUserName);
+		logindata = logindata.replaceAll("#password#", HFConfigration.cloudPassword);
+		logindata = logindata.replaceAll("#mac#", getMacAddress());
+		logindata = logindata.replaceAll("#phoneName#", phoneName);
 		String rsp = HttpProxy.reqByHttpPost(logindata);
 		try {
 			JSONObject json = new JSONObject(rsp);
-			if(json.getInt("RS") == 1){
+			if(json.getInt("RC") == 1){
 				setSid(json.getString("SID"));
+				HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setUserName(HFConfigration.cloudUserName);
+				HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setPswd(HFConfigration.cloudPassword);
 			}else{
-				throw new HFModuleException(json.getInt("RS"),json.getString("reson"));
+				throw new HFModuleException(json.getInt("RC"),json.getString("RN"));
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -71,7 +71,6 @@ public class HFModuleManager implements IHFModuleManager {
 	}
 	
 	private  String getMacAddress() {
-        // »ñÈ¡macµØÖ·£º
         String macAddress = "000000000000";
         try {
             WifiManager wifiMgr = (WifiManager) HFConfigration.appContex
@@ -93,9 +92,21 @@ public class HFModuleManager implements IHFModuleManager {
     }
 
 	@Override
-	public void logout() {
+	public void logout() throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "logout");
+		String logoutdata = "{'CID':10021,'SID':#SID#}";
+		logoutdata = logoutdata.replaceAll("#SID#", getsid());
+		String rsp = HttpProxy.reqByHttpPost(logoutdata);
+		try {
+			JSONObject json = new JSONObject(rsp);
+			if(json.getInt("RC") != 1){
+				throw new HFModuleException(json.getInt("RC"),json.getString("RN"));
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			throw new HFModuleException(HFModuleException.ERR_JSON_DECODE, e.getMessage());
+		}
 	}
 
 	@Override
@@ -170,6 +181,7 @@ public class HFModuleManager implements IHFModuleManager {
 	public void setModule(ModuleInfo mi) {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "setModule");
+		
 	}
 
 	@Override
@@ -233,19 +245,41 @@ public class HFModuleManager implements IHFModuleManager {
 				DatagramPacket beat = new DatagramPacket(data, data.length,HFConfigration.broudcastIp,HFConfigration.localUDPPort);
 				try {
 					localBeatSocket.send(beat);
+					if(HFLocalSaveHelper.getInstence().isIsregisted()){
+						if(getsid() == null){
+							login();
+						}
+					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					try {
-						HFConfigration.broudcastIp = InetAddress.getByName(getBroadcastAddress());
-					} catch (UnknownHostException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					initBroadCast();
+				} catch (HFModuleException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					changeDomain();
 				}
 				Log.i("HFModuleManager", "sendBeat->"+HFConfigration.broudcastIp.getHostName()+":"+HFConfigration.localUDPPort);
 				ByteTool.sleep(HFConfigration.pulseInterval);
 			}
+		}
+		
+		private void initBroadCast(){
+			try {
+				HFConfigration.broudcastIp = InetAddress.getByName(getBroadcastAddress());
+			} catch (UnknownHostException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		int domainNum = 0;
+		
+		private void changeDomain(){
+			String[] domians = {"http://115.29.164.59/usvc/","http://115.29.164.59/usvc/","http://115.29.164.59/usvc/"};
+			if(domainNum == 3)
+				domainNum = 0;
+			HFConfigration.cloudServiceUrl = domians[domainNum];
+			HFLocalSaveHelper.getInstence().setServerDomain(HFConfigration.cloudServiceUrl);
 		}
 	};
 	
@@ -270,33 +304,21 @@ public class HFModuleManager implements IHFModuleManager {
 	
 	
 	@Override
-	public void startLocalTimer() {
+	public void startLocalTimer() throws SocketException {
 		// TODO Auto-generated method stub
 		this.isAppRunning = true;
-		new Thread(beatThread).start();
-		new Thread(recvThread).start();
-	}
-	
-	@Override
-	public void initSystem(Context ctx) throws SocketException {
-		// TODO Auto-generated method stub
-		HFConfigration.appContex = ctx;
-		HFLocalSaveHelper.getInstence().init();
-		HFConfigration.cloudServiceUrl = HFLocalSaveHelper.getInstence().getServerDomain() ;
 		try {
 			HFConfigration.broudcastIp = InetAddress.getByName(getBroadcastAddress());
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		HFConfigration.cloudPassword = HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getPswd();
-		HFConfigration.cloudUserName = HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getUserName();
-		HFConfigration.cloudUserEmail =  HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getEmail();
-		HFConfigration.cloudUserNickName =  HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getUserNickName();
-		HFConfigration.cloudUserPhone =  HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getPhone();
-		HFConfigration.localUDPPort  =  HFLocalSaveHelper.getInstence().getLocalPort();
 		localBeatSocket = new DatagramSocket(HFConfigration.localUDPPort);
+		new Thread(beatThread).start();
+		new Thread(recvThread).start();
 	}
+	
+
 	
 	private String  getBroadcastAddress(){
 		WifiManager myWifiManager = (WifiManager) HFConfigration.appContex
@@ -317,6 +339,12 @@ public class HFModuleManager implements IHFModuleManager {
 			// TODO Auto-generated catch block
 			return "255.255.255.255";
 		}
+	}
+	@Override
+	public void stopLocalTimer() {
+		// TODO Auto-generated method stub
+		this.isAppRunning = false;
+		localBeatSocket.close();
 	}
 
 }

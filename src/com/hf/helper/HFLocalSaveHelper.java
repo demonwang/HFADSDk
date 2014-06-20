@@ -1,5 +1,9 @@
 package com.hf.helper;
 
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import com.hf.data.HFConfigration;
@@ -18,6 +22,7 @@ public class HFLocalSaveHelper  {
 	private final String LASTRUNSTATE = "LASTRUNSTATE";
 	private final String SERVDOMAIN = "SERVDOMAIN";
 	private final String LOCALPORT = "LOCALPORT";
+	private final String ACCESSKEY = "ACCESSKEY";
 	public static final String MAINUSER = "MAINUSER";
 	public static final String SHAREDUSER = "SHAREDUSER";
 	public static final String ROUTERINFO = "ROUTERINFO";
@@ -38,6 +43,7 @@ public class HFLocalSaveHelper  {
 	private String lastRunState = RUNSTAT_LOCAL;
 	private String serverDomain = "www.iotworkshop.com";
 	private int localPort = 38899;
+	private String accesskey = "8a21049f466068f90146607eaaa1022a";
 	
 	public static HFLocalSaveHelper getInstence(){
 		if(me == null){
@@ -61,7 +67,31 @@ public class HFLocalSaveHelper  {
 		this.localPort = sp.getInt(LOCALPORT, 38899);
 		this.routerInfoHelper = new HFRouterInfoHelper();
 		this.mainUserInfoHelper = new HFMainUserDataHelper();
+		this.accesskey = sp.getString(ACCESSKEY, "8a21049f466068f90146607eaaa1022a");
 		return this;
+	}
+	public void saveHFConfigration(){
+		setLocalPort(HFConfigration.localUDPPort);
+		setServerDomain(HFConfigration.cloudServiceUrl);
+		setAccesskey(HFConfigration.accessKey);
+		getMainUserInfoHelper().setEmail(HFConfigration.cloudUserEmail);
+		getMainUserInfoHelper().setPhone(HFConfigration.cloudUserPhone);
+		getMainUserInfoHelper().setPswd(HFConfigration.cloudPassword);
+		getMainUserInfoHelper().setUserName(HFConfigration.cloudUserName);
+		getMainUserInfoHelper().setUserNickName(HFConfigration.cloudUserNickName);
+	}
+	
+	public void loadConfigration(){
+		// TODO Auto-generated method stub
+		HFLocalSaveHelper.getInstence().init();
+		HFConfigration.cloudServiceUrl = getServerDomain() ;
+		HFConfigration.cloudPassword = getMainUserInfoHelper().getPswd();
+		HFConfigration.cloudUserName = getMainUserInfoHelper().getUserName();
+		HFConfigration.cloudUserEmail =  getMainUserInfoHelper().getEmail();
+		HFConfigration.cloudUserNickName = getMainUserInfoHelper().getUserNickName();
+		HFConfigration.cloudUserPhone = getMainUserInfoHelper().getPhone();
+		HFConfigration.localUDPPort  =  getLocalPort();
+		HFConfigration.accessKey = getAccesskey();
 	}
 	
 	public IHFRouterInfoHelper getrouterInfoHelper(){
@@ -143,4 +173,17 @@ public class HFLocalSaveHelper  {
 		e.putInt(LOCALPORT, localPort);
 		e.commit();
 	}
+
+	public String getAccesskey() {
+		return accesskey;
+	}
+
+	public void setAccesskey(String accesskey) {
+		this.accesskey = accesskey;
+		Editor e = sp.edit();
+		e.putString(ACCESSKEY, accesskey);
+		e.commit();
+	}
+	
+	
 }

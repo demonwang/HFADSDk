@@ -19,6 +19,7 @@ public class HttpProxy {
 		URL postUrl;
 		try {
 			Log.w("reqByHttpPost", HFConfigration.cloudServiceUrl);
+			Log.e("reqByHttpPost", req);
 			postUrl = new URL(HFConfigration.cloudServiceUrl);
 			HttpURLConnection connection = (HttpURLConnection) postUrl
 					.openConnection();
@@ -48,6 +49,7 @@ public class HttpProxy {
 				sb.append(line);
 			}
 			rsp = sb.toString();
+			Log.e("reqByHttpPost", rsp);
 			return rsp;
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block

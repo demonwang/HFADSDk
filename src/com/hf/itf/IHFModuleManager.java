@@ -15,9 +15,8 @@ public interface IHFModuleManager {
 	 * 2.init Local saver
 	 * @throws SocketException 
 	 */
-	public void initSystem(Context ctx) throws SocketException;
 	public void login() throws HFModuleException;
-	public void logout();
+	public void logout() throws HFModuleException;
 	public void registerUser();
 	public void getUser();
 	public void setUser();
@@ -40,5 +39,6 @@ public interface IHFModuleManager {
 	
 	public void startRemoteRefreshTimer();
 	
-	public void startLocalTimer();
+	public void startLocalTimer() throws SocketException;
+	public void stopLocalTimer();
 }

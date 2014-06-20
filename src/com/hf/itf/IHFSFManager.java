@@ -13,7 +13,7 @@ public interface IHFSFManager {
 	public static int HISF_REGIST_OK = 5;
 	public static int HISF_REGIST_NOK = 6;
 	
-	public int HISF_Start(Context ctx) throws SocketException;
+	public int HISF_Start() throws SocketException;
 	public int HISF_Login();
 	public int HISF_Register();
 	public int HISF_Refresh();

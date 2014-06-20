@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import android.content.Context;
 
 import com.hf.ManagerFactory;
+import com.hf.data.HFConfigration;
 import com.hf.helper.HFLocalSaveHelper;
 import com.hf.info.ModuleInfo;
 import com.hf.itf.IHFSFManager;
@@ -14,21 +15,24 @@ import com.hf.util.HFModuleException;
 public class HISFManager implements IHFSFManager{
 	private int START_MODE = HISF_LOCAL_MODE;
 	@Override
-	public int HISF_Start(Context ctx) throws SocketException {
+	public int HISF_Start() throws SocketException {
 		// TODO Auto-generated method stub
-		ManagerFactory.getManager().initSystem(ctx);
-		ManagerFactory.getManager().startLocalTimer();
+		HFLocalSaveHelper.getInstence().init();
+		HFLocalSaveHelper.getInstence().setIsfristRun(false);
 		if(HFLocalSaveHelper.getInstence().isIsfristRun()){
 			return HISF_FIRSTRUN;
 		}
-		if(HFLocalSaveHelper.getInstence().isIsregisted()){;
+		if(HFLocalSaveHelper.getInstence().isIsregisted()){
+			HFLocalSaveHelper.getInstence().loadConfigration();
+			ManagerFactory.getManager().startLocalTimer();
 			START_MODE = HISF_Login();			
 			if(START_MODE == HISF_SERVER_MODE){
 				addMyLocalModuleToServer();
 			}
 			return START_MODE;
+		}else{
+			return HISF_UNLOGIN;
 		}
-		return HISF_FIRSTRUN;
 	}
 
 	@Override
@@ -36,7 +40,10 @@ public class HISFManager implements IHFSFManager{
 		// TODO Auto-generated method stub
 		try {
 			ManagerFactory.getManager().login();
-			HFLocalSaveHelper.getInstence().setIsfristRun(false);
+			HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setUserName(HFConfigration.cloudUserName);
+			HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setPswd(HFConfigration.cloudPassword);
+			HFLocalSaveHelper.getInstence().setAccesskey(HFConfigration.accessKey);
+			HFLocalSaveHelper.getInstence().setIsregisted(true);
 			return HISF_SERVER_MODE;
 		} catch (HFModuleException e) {
 			// TODO: handle exception
@@ -49,7 +56,7 @@ public class HISFManager implements IHFSFManager{
 		// TODO Auto-generated method stub
 		try {
 			ManagerFactory.getManager().registerUser();
-			HFLocalSaveHelper.getInstence().setIsregisted(true);
+			
 			return HISF_REGIST_OK;
 		} catch (Exception e) {
 			// TODO: handle exception
