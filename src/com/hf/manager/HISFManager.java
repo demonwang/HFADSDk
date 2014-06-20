@@ -3,8 +3,6 @@ package com.hf.manager;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-import android.content.Context;
-
 import com.hf.ManagerFactory;
 import com.hf.data.HFConfigration;
 import com.hf.helper.HFLocalSaveHelper;
@@ -15,40 +13,28 @@ import com.hf.util.HFModuleException;
 public class HISFManager implements IHFSFManager{
 	private int START_MODE = HISF_LOCAL_MODE;
 	@Override
-	public int HISF_Start() throws SocketException {
+	public int HISF_Start() throws HFModuleException {
 		// TODO Auto-generated method stub
 		HFLocalSaveHelper.getInstence().init();
-		HFLocalSaveHelper.getInstence().setIsfristRun(false);
 		if(HFLocalSaveHelper.getInstence().isIsfristRun()){
+			HFLocalSaveHelper.getInstence().setIsfristRun(false);
 			return HISF_FIRSTRUN;
 		}
+		
 		if(HFLocalSaveHelper.getInstence().isIsregisted()){
 			HFLocalSaveHelper.getInstence().loadConfigration();
 			ManagerFactory.getManager().startLocalTimer();
-			START_MODE = HISF_Login();			
-			if(START_MODE == HISF_SERVER_MODE){
-				addMyLocalModuleToServer();
-			}
-			return START_MODE;
+			return HISF_SERVER_MODE;
 		}else{
 			return HISF_UNLOGIN;
 		}
 	}
 
 	@Override
-	public int HISF_Login() {
+	public int HISF_Login() throws HFModuleException {
 		// TODO Auto-generated method stub
-		try {
-			ManagerFactory.getManager().login();
-			HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setUserName(HFConfigration.cloudUserName);
-			HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setPswd(HFConfigration.cloudPassword);
-			HFLocalSaveHelper.getInstence().setAccesskey(HFConfigration.accessKey);
-			HFLocalSaveHelper.getInstence().setIsregisted(true);
-			return HISF_SERVER_MODE;
-		} catch (HFModuleException e) {
-			// TODO: handle exception
-			return  HISF_LOCAL_MODE;
-		}
+//		ManagerFactory.getManager().login();
+		return 0;
 	}
 	
 	@Override
@@ -56,7 +42,6 @@ public class HISFManager implements IHFSFManager{
 		// TODO Auto-generated method stub
 		try {
 			ManagerFactory.getManager().registerUser();
-			
 			return HISF_REGIST_OK;
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -69,9 +54,10 @@ public class HISFManager implements IHFSFManager{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
-	
-	private void addMyLocalModuleToServer(){
+
+	@Override
+	public void syncRemoteModuleInfo(final SyncModuleEventListener li) {
+		// TODO Auto-generated method stub
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -83,10 +69,21 @@ public class HISFManager implements IHFSFManager{
 						ManagerFactory.getManager().setModule(mi);
 						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getServerModuleInfoHelper().put(mi.getMac(), mi);
 						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getLocalModuleInfoHelper().remove(mi.getMac());
+						
 					} catch (Exception e) {
 						// TODO: handle exception
+						e.printStackTrace();
 					}			
 				}	
+				
+				try {
+					ManagerFactory.getManager().getAllModule();
+					li.onSyncSuccess();
+				} catch (HFModuleException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					li.onSyncErr();
+				}
 			}
 		}).start();
 	}

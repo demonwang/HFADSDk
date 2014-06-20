@@ -27,7 +27,7 @@ public interface IHFModuleHelper {
 	
 	public int getRemoteModuleOnlineNum();
 	
-	public void updatRemoteModuleLocalIp(String mac,String ip);
+	public void updatRemoteModuleLocalIp();
 	
 	/**
 	 * local
@@ -50,7 +50,7 @@ public interface IHFModuleHelper {
 	
 	public int getMyLocalModuleOnlineNum();
 	
-	public void updatLocalMyModuleLocalIp(String mac,String ip);
+	public void updatLocalMyModuleLocalIp();
 	/**
 	 * shared
 	 */
@@ -73,7 +73,7 @@ public interface IHFModuleHelper {
 	
 	public int getLocalModuleOnlineNum();
 	
-	public void updatLocalModuleLocalIp(String mac,String ip);
+	public void updatLocalModuleLocalIp();
 	
 	/**
 	 * new
@@ -97,7 +97,7 @@ public interface IHFModuleHelper {
 	
 	public int getNewModuleOnlineNum();
 	
-	public void updatNewModuleLocalIp(String mac,String ip);
+	public void updatNewModuleLocalIp();
 	
 	/*
 	 * 

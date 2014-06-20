@@ -9,9 +9,15 @@ public class HFModuleException extends Exception{
 	public static final int ERR_HTTP_RECV_CMD = -503;
 	public static final int ERR_JSON_DECODE = -505;
 	public static final int ERR_AES = -504;
-	
+	public static final int ERR_COULD_NOT_ALIVE = -506;
+
+	public static final int ERR_BROADCAST_GET = -507;
 	public HFModuleException(int errorCode,String e){
 		super(e);
 		this.errorCode = errorCode;
+	}
+	
+	public int getErrcode(){
+		return this.errorCode;
 	}
 }

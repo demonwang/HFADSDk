@@ -19,21 +19,6 @@ public class HFSendAsyncCmdHelper implements IHFSendAsyncCmdHelper{
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				T1CtrlMassage msg = new T1CtrlMassage();
-				msg.setMac(mi.getMac());
-				msg.setFactoryId(mi.getFactoryId());
-				msg.setDeviceType(mi.getType());
-				msg.setSn(new Random().nextInt(65535));
-				msg.setProVer((byte) 1);
-				msg.setKey(mi.getLocalKey());
-				msg.setT2(t2);
-				try {
-					byte[] cmd = msg.pack();
-					Log.i("UNDone", ByteTool.Byte2StringWithSpace(cmd));
-				} catch (HFModuleException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				
 			}
 		}).start();

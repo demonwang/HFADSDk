@@ -13,4 +13,5 @@ public interface IHFServerModuleInfoHelper {
 	public ModuleInfo remove(Object key);
 	public void clear();
 	public ArrayList<ModuleInfo> getAll();
+	public void checkArginTime();
 }

@@ -3,8 +3,6 @@ package com.hf.itf;
 import java.net.SocketException;
 import java.util.ArrayList;
 
-import android.content.Context;
-
 import com.hf.info.KeyValueInfo;
 import com.hf.info.ModuleInfo;
 import com.hf.util.HFModuleException;
@@ -33,12 +31,11 @@ public interface IHFModuleManager {
 	public void setModule(ModuleInfo mi);
 	public void getModule(String mac);
 	public void deleteModule(String mac);
-	public ArrayList<ModuleInfo> getAllModule();
-	public IHFModuleHelper getHFModuleHelper(IHFModuleManager manager);
-	public IHFSFManager getFSFManager(IHFModuleManager manager);
+	public ArrayList<ModuleInfo> getAllModule() throws HFModuleException;
+	public IHFModuleHelper getHFModuleHelper();
 	
 	public void startRemoteRefreshTimer();
 	
-	public void startLocalTimer() throws SocketException;
+	public void startLocalTimer() throws HFModuleException;
 	public void stopLocalTimer();
 }

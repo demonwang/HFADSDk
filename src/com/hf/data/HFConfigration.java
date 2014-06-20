@@ -29,4 +29,7 @@ public class HFConfigration {
 	public static int 	 pulseInterval = 30; //second
 	public static int 	 defautTimeout = 5000;
 	public static Context appContex; //
+	
+	
+	public static String defLocalKey = "1234567890abcdef";
 }

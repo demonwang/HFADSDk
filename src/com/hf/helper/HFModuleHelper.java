@@ -3,6 +3,7 @@ package com.hf.helper;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.hf.data.HFConfigration;
 import com.hf.info.ModuleInfo;
 import com.hf.itf.IHFModuleHelper;
 
@@ -74,14 +75,9 @@ public class HFModuleHelper implements IHFModuleHelper{
 	}
 
 	@Override
-	public void updatRemoteModuleLocalIp(String mac, String ip) {
+	public void updatRemoteModuleLocalIp() {
 		// TODO Auto-generated method stub
-		ArrayList<ModuleInfo> mis = localsaveHelper.getMainUserInfoHelper().getServerModuleInfoHelper().getAll();
-		for(ModuleInfo mi:mis){
-			if(mi.getMac().equalsIgnoreCase(mac)){
-				mi.setLocalIp(ip);
-			}
-		}
+		localsaveHelper.getMainUserInfoHelper().getServerModuleInfoHelper().checkArginTime();
 	}
 
 	@Override
@@ -146,14 +142,9 @@ public class HFModuleHelper implements IHFModuleHelper{
 	}
 
 	@Override
-	public void updatLocalMyModuleLocalIp(String mac, String ip) {
+	public void updatLocalMyModuleLocalIp() {
 		// TODO Auto-generated method stub
-		ArrayList<ModuleInfo> mis = localsaveHelper.getMainUserInfoHelper().getLocalModuleInfoHelper().getAll();
-		for(ModuleInfo mi:mis){
-			if(mi.getMac().equalsIgnoreCase(mac)){
-				mi.setLocalIp(ip);
-			}
-		}
+		localsaveHelper.getMainUserInfoHelper().getLocalModuleInfoHelper().checkArginTime();
 	}
 
 	
@@ -167,6 +158,8 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public void setAllLocalModuleInfo(ArrayList<ModuleInfo> mis) {
 		// TODO Auto-generated method stub
+		if(mis == null)
+			return ;
 		this.localModuleInfos = mis;
 	}
 
@@ -235,15 +228,10 @@ public class HFModuleHelper implements IHFModuleHelper{
 	}
 
 	@Override
-	public void updatLocalModuleLocalIp(String mac, String ip) {
+	public void updatLocalModuleLocalIp() {
 		// TODO Auto-generated method stub
 		Iterator<ModuleInfo> it = localModuleInfos.iterator();
-		while(it.hasNext()){
-			ModuleInfo mi = it.next();
-			if(mi.getMac().equalsIgnoreCase(mac)){
-				mi.setLocalIp(ip);
-			}
-		}
+		checkArginTime(localModuleInfos);
 	}
 
 	@Override
@@ -255,6 +243,8 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public void setAllNewModuleInfo(ArrayList<ModuleInfo> mis) {
 		// TODO Auto-generated method stub
+		if(mis == null)
+			return ;
 		this.newModuleInfos = mis;
 	}
 
@@ -323,15 +313,25 @@ public class HFModuleHelper implements IHFModuleHelper{
 	}
 
 	@Override
-	public void updatNewModuleLocalIp(String mac, String ip) {
+	public void updatNewModuleLocalIp() {
 		// TODO Auto-generated method stub
-		Iterator<ModuleInfo> it = newModuleInfos.iterator();
-		while(it.hasNext()){
-			ModuleInfo mi = it.next();
-			if(mi.getMac().equalsIgnoreCase(mac)){
-				mi.setLocalIp(ip);
-			}
-		}
+		checkArginTime(newModuleInfos);
 	}
 	
+	private void checkArginTime(ArrayList<ModuleInfo> mis) {
+		// TODO Auto-generated method stub
+		Iterator<ModuleInfo> iter = mis.iterator();
+		while (iter.hasNext()) {
+	        ModuleInfo mi = (ModuleInfo) iter.next();
+	        if(mi.getLocalIp() != null){
+		        long lastTimestamp = mi.getLastTimestamp();
+		        long nowTimestamp = new java.util.Date().getTime();
+		        
+		        long tmpTimestap = HFConfigration.pulseInterval*2;
+		        if( nowTimestamp > (lastTimestamp + tmpTimestap) ){
+		        	mi.setLocalIp(null);
+		        }
+	        }
+        }
+	}
 }
