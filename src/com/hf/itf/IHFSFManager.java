@@ -2,6 +2,8 @@ package com.hf.itf;
 
 import java.net.SocketException;
 
+import com.hf.util.HFModuleException;
+
 import android.content.Context;
 
 public interface IHFSFManager {
@@ -13,13 +15,17 @@ public interface IHFSFManager {
 	public static int HISF_REGIST_OK = 5;
 	public static int HISF_REGIST_NOK = 6;
 	
-	public int HISF_Start() throws SocketException;
-	public int HISF_Login();
+	public int HISF_Start() throws HFModuleException;
+	public int HISF_Login() throws HFModuleException;
 	public int HISF_Register();
 	public int HISF_Refresh();
-	
+	void syncRemoteModuleInfo(SyncModuleEventListener li);
 	
 	interface startEventListener{
 		void onResult(int rs);
+	}
+	interface SyncModuleEventListener{
+		void onSyncSuccess();
+		void onSyncErr();
 	}
 }

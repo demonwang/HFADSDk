@@ -95,6 +95,9 @@ public class HFLocalModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 	@Override
 	public void putAll(ArrayList<ModuleInfo> mis) {
 		// TODO Auto-generated method stub
+		if(mis == null){
+			return ;
+		}
 		this.clear();
 		Iterator<ModuleInfo> it = mis.iterator();
 		while(it.hasNext()){
@@ -102,5 +105,24 @@ public class HFLocalModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 			this.put(mi.getMac(),mi);
 		}
 		save();
+	}
+	@Override
+	public void checkArginTime() {
+		// TODO Auto-generated method stub
+		Iterator<ModuleInfo> iter = this.values().iterator();
+		while (iter.hasNext()) {
+	        ModuleInfo mi = (ModuleInfo) iter.next();
+	        if(mi.getLocalIp() != null){
+		        long lastTimestamp = mi.getLastTimestamp();
+		        long nowTimestamp = new java.util.Date().getTime();
+		        
+		        long tmpTimestap = HFConfigration.pulseInterval*2;
+		        
+		        if( nowTimestamp > (lastTimestamp + tmpTimestap) ){
+		        	mi.setLocalIp(null);
+		        }
+	        }
+        }
+		this.save();
 	}
 }
