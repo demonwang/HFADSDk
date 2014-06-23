@@ -122,12 +122,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					try {
-						ManagerFactory.getManager().logout();
-					} catch (HFModuleException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+				
 				}
 			}).start();
 		}

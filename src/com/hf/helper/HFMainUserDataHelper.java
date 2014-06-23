@@ -9,6 +9,7 @@ import com.hf.itf.IHFKeyValueHelper;
 import com.hf.itf.IHFLocalModuleInfoHelper;
 import com.hf.itf.IHFMainUserDataHelper;
 import com.hf.itf.IHFServerModuleInfoHelper;
+import com.hf.itf.IHFShareModuleInfoHelper;
 
 public class HFMainUserDataHelper implements IHFMainUserDataHelper{
 	private final String USER_LOCAL_DATA_SP = "USER_LOCAL_DATA_SP";
@@ -22,6 +23,7 @@ public class HFMainUserDataHelper implements IHFMainUserDataHelper{
 	public static final String KEYVALUE = "KEYVALUE";
 	public static final String SERVDATA = "SERVDATA";
 	public static final String LOCALDATA = "LOCALDATA";
+	private static final String SHAREDATA = "SHAREDATA";
 	
 	private String userName;
 	private String userNickName;
@@ -32,6 +34,7 @@ public class HFMainUserDataHelper implements IHFMainUserDataHelper{
 	private IHFKeyValueHelper keyvalueHelper = null;
 	private IHFLocalModuleInfoHelper localModuleInfoHelper= null;
 	private IHFServerModuleInfoHelper serverModuleInfoHelper= null;
+	private IHFShareModuleInfoHelper shareModuleInfoHelper = null;
 	
 	private SharedPreferences sp ;
 	public HFMainUserDataHelper(){
@@ -45,6 +48,7 @@ public class HFMainUserDataHelper implements IHFMainUserDataHelper{
 		this.keyvalueHelper = new HFKeyValueHelper();
 		this.localModuleInfoHelper = new HFLocalModuleInfoHelper();
 		this.serverModuleInfoHelper = new HFServerModuleInfoHelper();
+		this.shareModuleInfoHelper = new HFShareModuleInfoHelper();
 	}
 	public String getUserName() {
 		return userName;
@@ -122,5 +126,13 @@ public class HFMainUserDataHelper implements IHFMainUserDataHelper{
 			serverModuleInfoHelper = new HFServerModuleInfoHelper();
 		}
 		return serverModuleInfoHelper;
+	}
+	@Override
+	public IHFShareModuleInfoHelper getHFShareModuleInfoHelper() {
+		// TODO Auto-generated method stub
+		if(shareModuleInfoHelper == null){
+			shareModuleInfoHelper = new HFShareModuleInfoHelper();
+		}
+		return shareModuleInfoHelper;
 	}
 }

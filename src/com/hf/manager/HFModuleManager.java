@@ -22,18 +22,17 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.hf.ManagerFactory;
-import com.hf.cmd.T1CtrlMassage;
 import com.hf.cmd.T1Message;
 import com.hf.data.HFConfigration;
 import com.hf.helper.HFLocalSaveHelper;
 import com.hf.helper.HFModuleHelper;
 import com.hf.info.KeyValueInfo;
 import com.hf.info.ModuleInfo;
+import com.hf.info.UserInfo;
 import com.hf.itf.IHFModuleEventListener;
 import com.hf.itf.IHFModuleHelper;
 import com.hf.itf.IHFModuleLocalManager;
 import com.hf.itf.IHFModuleManager;
-import com.hf.itf.IHFSFManager;
 import com.hf.itf.IHFSFManager.SyncModuleEventListener;
 import com.hf.lib.util.AES;
 import com.hf.util.ByteTool;
@@ -70,7 +69,7 @@ public class HFModuleManager implements IHFModuleManager {
 		try {
 			JSONObject json = new JSONObject(rsp);
 			if(json.getInt("RC") == 1){
-				setSid(json.getString("SID"));
+				this.setSid(json.getString("SID"));
 				HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setUserName(HFConfigration.cloudUserName);
 				HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setPswd(HFConfigration.cloudPassword);
 				HFLocalSaveHelper.getInstence().setAccesskey(HFConfigration.accessKey);
@@ -125,7 +124,7 @@ public class HFModuleManager implements IHFModuleManager {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "logout");
 		if(!isCloudChannelLive()){
-			return ;
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
 		}
 		HFLocalSaveHelper.getInstence().setIsregisted(false);
 		String logoutdata = "{'CID':10021,'SID':#SID#}";
@@ -150,15 +149,103 @@ public class HFModuleManager implements IHFModuleManager {
 	}
 
 	@Override
-	public void getUser() {
+	public UserInfo getUser() throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "getUser");
+		if(!isCloudChannelLive()){
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		String req = "{'CID':10231,'SID':'#SID#'} ";
+		req = req.replaceAll("#SID#", getsid());
+		String rsp = HttpProxy.reqByHttpPost(req);
+		JSONObject json;
+		try {
+			json = new JSONObject(rsp);
+			if (json.getInt("RC") == 1) {
+
+				JSONObject joRsp = json.getJSONObject("PL");
+				UserInfo result = new UserInfo();
+
+				if (!joRsp.isNull("id"))
+					result.setId(joRsp.getString("id"));
+				if (!joRsp.isNull("displayName")) {
+					result.setDisplayName(joRsp.getString("displayName"));
+					HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setUserNickName(result.getDisplayName());
+					HFConfigration.cloudUserNickName = result.getDisplayName();
+				}
+				if (!joRsp.isNull("userName"))
+				{
+					result.setUserName(joRsp.getString("userName"));
+					HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setUserName(result.getUserName());
+					HFConfigration.cloudUserName = result.getUserName();
+				}
+				if (!joRsp.isNull("cellPhone")) {
+					result.setCellPhone(joRsp.getString("cellPhone"));
+					HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setPhone(result.getCellPhone());
+					HFConfigration.cloudUserPhone = result.getCellPhone();
+				}
+				if (!joRsp.isNull("email")) {
+					result.setEmail(joRsp.getString("email"));
+					HFLocalSaveHelper.getInstence().getMainUserInfoHelper().setEmail(result.getEmail());
+					HFConfigration.cloudUserEmail = result.getEmail();
+				}
+				if (!joRsp.isNull("idNumber")){
+					result.setIdNumber(joRsp.getString("idNumber"));
+				}
+				if (!joRsp.isNull("createTime")){
+					result.setCreateTime(joRsp.getString("createTime"));
+				}
+				return result;
+			} else {
+				throw new HFModuleException(HFModuleException.ERR_GET_USER,"can not get user");
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			throw new HFModuleException(HFModuleException.ERR_GET_USER,"can not get user");
+		}
+		
 	}
 
 	@Override
-	public void setUser() {
+	public void setUser(UserInfo info) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "setUser");
+		if(!isCloudChannelLive()){
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		JSONObject req = new JSONObject();
+		JSONObject pl = new JSONObject();
+		try{
+			
+			if (info.getDisplayName() != null)
+				pl.put("displayName", info.getDisplayName());
+			if (info.getUserName() != null)
+				pl.put("userName", info.getUserName());
+			if (info.getPassword() != null)
+				pl.put("password", info.getPassword());
+			if (info.getCellPhone() != null)
+				pl.put("cellPhone", info.getCellPhone());
+			if (info.getEmail() != null)
+				pl.put("email", info.getEmail());
+			if (info.getIdNumber() != null)
+				pl.put("idNumber", info.getIdNumber());
+			
+			req.put("CID", 10221);
+			req.put("SID", getsid());
+			req.put("PL", pl);
+			String rsp = HttpProxy.reqByHttpPost(req.toString());
+			
+			JSONObject jo = new JSONObject(rsp);
+			if(jo.isNull("RC")){
+				throw new HFModuleException(HFModuleException.ERR_SET_USER, "can not set user");
+			}
+			if(jo.getInt("RC") != 1){
+				throw new HFModuleException(HFModuleException.ERR_SET_USER, "can not set user");
+			}
+			
+		}catch(JSONException e){
+			throw new HFModuleException(HFModuleException.ERR_SET_USER, "can not set user");
+		}
 	}
 
 	@Override
@@ -168,41 +255,179 @@ public class HFModuleManager implements IHFModuleManager {
 	}
 
 	@Override
-	public void changePassword(String old, String newpswd) {
+	public void changePassword(String old, String newpswd) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "changePassword");
+		if (!this.isCloudChannelLive()) {
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+
+		try{
+			JSONObject joReq = new JSONObject();
+			JSONObject pl = new JSONObject();
+			joReq.put("CID", 10241);
+			joReq.put("SID", getsid());
+			pl.put("oldPwd", old);
+			pl.put("newPwd", newpswd);
+			joReq.put("PL", pl);
+	
+			String req = joReq.toString();
+	
+			String rsp = HttpProxy.reqByHttpPost(req);
+			JSONObject jo = new JSONObject(rsp);
+	
+			if(jo.isNull("RC")){
+				throw new HFModuleException(HFModuleException.ERR_CHANGE_PSWD, "can not change passwd");
+			}
+			if (jo.getInt("RC") != 1) {
+				throw new HFModuleException(HFModuleException.ERR_CHANGE_PSWD, "can not change passwd");
+			}
+		}catch(JSONException e){
+			throw new HFModuleException(HFModuleException.ERR_CHANGE_PSWD, "can not change passwd");
+		}
 	}
 
+	/*
+	 * receiverType 1 :sms ,2 :email
+	 * 
+	 */
 	@Override
-	public void retrievePassword(String email) {
+	public void retrievePassword(String receiverAddress, int receiverType) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "retrievePassword");
+		if (!this.isCloudChannelLive()) {
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		JSONObject joReq = new JSONObject();
+		JSONObject pl = new JSONObject();
+		try {
+			joReq.put("CID", 10041);
+			if (receiverType == 1) {
+				pl.put("sms", receiverAddress);
+			} else if (receiverType == 2) {
+				pl.put("email", receiverAddress);
+			} else {
+				pl.put("sms", receiverAddress);
+			}
+			joReq.put("PL", pl);
+			String req = joReq.toString();
+			System.out.println(req);
+			String rsp = HttpProxy.reqByHttpPost(req);
+			System.out.println(rsp);
+			JSONObject jo = new JSONObject(rsp);
+			if(jo.isNull("RC")){
+				throw new HFModuleException(HFModuleException.ERR_GET_PSWD, "can not get passwd");
+			}
+			if (jo.getInt("RC") != 1) {
+				throw new HFModuleException(HFModuleException.ERR_GET_PSWD, "can not cget passwd");
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			throw new HFModuleException(HFModuleException.ERR_GET_PSWD, "can not cget passwd");
+		}
+		
 	}
 
 	@Override
-	public void setKeyValueInfo(KeyValueInfo kv) {
+	public void setKeyValueInfo(KeyValueInfo kv) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "setKeyValueInfo");
+		if (!this.isCloudChannelLive()) {
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		JSONObject joReq = new JSONObject();
+		JSONObject pl = new JSONObject();
+		try {
+			joReq.put("PL", pl);
+			joReq.put("CID", 30511);
+			joReq.put("SID", getsid());
+			pl.put("key", kv.key);
+			pl.put("value", kv.value);
+
+			String req = joReq.toString();
+
+			String rsp = HttpProxy.reqByHttpPost(req);
+			JSONObject jo = new JSONObject(rsp);
+
+			if(jo.isNull("RC")){
+				throw new HFModuleException(HFModuleException.ERR_SET_KEYVALUE, "can not set keyvalue");
+			}
+			if (jo.getInt("RC") != 1) {
+				throw new HFModuleException(HFModuleException.ERR_SET_KEYVALUE, "can not set keyValue");
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			throw new HFModuleException(HFModuleException.ERR_SET_KEYVALUE, "can not set keyValue");
+		}
 	}
 
 	@Override
-	public KeyValueInfo getKeyvalueInfo(String key) {
+	public KeyValueInfo getKeyvalueInfo(String key) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "getKeyvalueInfo");
-		return null;
+		if (!this.isCloudChannelLive()) {
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		try {
+			JSONObject joReq = new JSONObject();
+			JSONObject pl = new JSONObject();
+			joReq.put("PL", pl);
+			joReq.put("CID", 30521);
+			joReq.put("SID", getsid());
+			pl.put("key", key);
+
+			String req = joReq.toString();
+			String rsp = HttpProxy.reqByHttpPost(req);
+			JSONObject jo = new JSONObject(rsp);
+			
+			if(jo.isNull("RC")){
+				throw new HFModuleException(HFModuleException.ERR_GET_KEYVALUE, "can not set keyvalue");
+			}
+			if (jo.getInt("RC") != 1) {
+				JSONObject rspPL = jo.getJSONObject("PL");
+				
+				KeyValueInfo kv = new KeyValueInfo();
+				kv.key = key;
+				kv.value = rspPL.getString("value");
+				return kv;
+			} else {
+				throw new HFModuleException(HFModuleException.ERR_GET_KEYVALUE, "can not set keyvalue");
+			}
+		} catch (JSONException e) {
+			// TODO: handle exception
+			throw new HFModuleException(HFModuleException.ERR_GET_KEYVALUE, "can not set keyvalue");
+		}
 	}
 
 	@Override
-	public void deleteKeyValueInfo(String key) {
+	public void deleteKeyValueInfo(String key) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "deleteKeyValueInfo");
-	}
+		if (!this.isCloudChannelLive()) {
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		try{
+			JSONObject joReq = new JSONObject();
+			JSONObject pl = new JSONObject();
+			joReq.put("PL", pl);
+			joReq.put("CID", 30531);
+			joReq.put("SID", getsid());
+			pl.put("key", key);
 
-	@Override
-	public IHFModuleLocalManager getHFModuleLocalManager() {
-		// TODO Auto-generated method stub
-		Log.d("HFModuleManager", "getHFModuleLocalManager");
-		return null;
+			String req = joReq.toString();
+
+			String rsp = HttpProxy.reqByHttpPost(req);
+			JSONObject jo = new JSONObject(rsp);
+
+			if(jo.isNull("RC")){
+				throw new HFModuleException(HFModuleException.ERR_DELETE_KEYVALUE, "can not set keyvalue");
+			}
+			if (jo.getInt("RC") != 1) {
+				throw new HFModuleException(HFModuleException.ERR_DELETE_KEYVALUE, "can not set keyvalue");
+			}
+		}catch(JSONException e){
+			throw new HFModuleException(HFModuleException.ERR_DELETE_KEYVALUE, "can not set keyvalue");
+		}
 	}
 
 	@Override
@@ -214,22 +439,134 @@ public class HFModuleManager implements IHFModuleManager {
 	}
 
 	@Override
-	public void setModule(ModuleInfo mi) {
+	public ModuleInfo setModule(ModuleInfo mi) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "setModule");
-		
+		if (!this.isCloudChannelLive()) {
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		try{
+			mi.setAccessKey(HFConfigration.accessKey);
+			JSONObject joReq = new JSONObject();
+			JSONObject pl = new JSONObject(mi.toJson());
+			joReq.put("PL", pl);
+			joReq.put("CID", 30011);
+			joReq.put("SID", this.getsid());
+			
+			
+			
+			String req = joReq.toString();
+			String rsp = null;
+			rsp = HttpProxy.reqByHttpPost(req);
+			JSONObject jo = new JSONObject(rsp);
+
+			if(jo.isNull("RC")){
+				throw new HFModuleException(HFModuleException.ERR_SET_MODULE, "can not set module");
+			}
+
+			if (jo.getInt("RC") == 1) {
+				JSONObject rspPL = jo.getJSONObject("PL");
+				ModuleInfo rspInfo = new ModuleInfo();
+				rspInfo.fromJson(pl);
+
+				rspInfo.setLocalIp(mi.getLocalIp());
+				getHFModuleHelper().addRemoteModuleInfo(rspInfo);
+
+				return rspInfo;
+			} else {
+				throw new HFModuleException(HFModuleException.ERR_SET_MODULE, "can not set module");
+			}
+		}catch(JSONException e){
+			throw new HFModuleException(HFModuleException.ERR_SET_MODULE, "can not set module");
+		}
 	}
 
 	@Override
-	public void getModule(String mac) {
+	public ModuleInfo getModule(String mac) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "getModule");
+		if (!this.isCloudChannelLive()) {
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		ModuleInfo mi = getHFModuleHelper().getRemoteModuleInfoByMac(mac);
+		if(mi == null){
+			throw new HFModuleException(HFModuleException.ERR_GET_REMOTE_MODULEINFO, "get moduleinfo from remote err");
+		}
+		if(mi.getId()==null){
+			return mi;
+		}
+		try{
+			String reqTemplate = "{'PL':{'moduleId':'#moduleId#'},'CID':30031,'SID':'#SID#'}";
+			String req = reqTemplate.replaceFirst("#moduleId#", mi.getId())
+					.replaceFirst("#SID#", getsid());
+
+			String rsp = HttpProxy.reqByHttpPost(req);
+			JSONObject jo = new JSONObject(rsp);
+
+			if(jo.isNull("RC")){
+				throw new HFModuleException(HFModuleException.ERR_GET_REMOTE_MODULEINFO, "get moduleinfo from remote err");
+			}
+			if (jo.getInt("RC") == 1) {
+				JSONObject rspPL = jo.getJSONObject("PL");
+				ModuleInfo rspInfo = new ModuleInfo();
+				rspInfo.fromJson(rspPL);
+
+				if (mi != null) {
+					rspInfo.setLocalIp(mi.getLocalIp());
+				}
+				getHFModuleHelper().addRemoteModuleInfo(mi);
+				return rspInfo;
+			} else {
+				return mi;
+			}
+		}catch(JSONException e){
+			return mi;
+		}
 	}
 
 	@Override
-	public void deleteModule(String mac) {
+	public void deleteModule(String mac) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "deleteModule");
+		if (!this.isCloudChannelLive()) {
+			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		
+		try{
+			ModuleInfo mi = getHFModuleHelper().getRemoteModuleInfoByMac(mac);
+			//*******
+			if(mi == null){
+				throw new HFModuleException(HFModuleException.ERR_DELETE_MODULE, "can not find this module");
+			}		
+					
+			if(mi.getId() == null){
+				getHFModuleHelper().removeRemoteModuleInfoByMac(mac);
+				getHFModuleHelper().removeMyLocalModuleInfoByMac(mac);
+				getHFModuleHelper().removeLocalModuleInfoByMac(mac);
+				getHFModuleHelper().removeNewModuleInfoByMac(mac);	
+				return ;
+			}
+			//***
+			String reqTemplate = "{'PL':{'moduleId':'#moduleId#'},'CID':30021,'SID':'#SID#'}";
+			String req = reqTemplate.replaceFirst("#moduleId#", mi.getId())
+					.replaceFirst("#SID#", getsid());
+
+			String rsp = HttpProxy.reqByHttpPost(req);
+			JSONObject jo = new JSONObject(rsp);
+			if(jo.isNull("RC")){
+				throw new HFModuleException(HFModuleException.ERR_DELETE_MODULE, "delete module err");
+			}
+			if (jo.getInt("RC") != 1) {
+				throw new HFModuleException(HFModuleException.ERR_DELETE_MODULE, "delete module err");
+			} else {
+				getHFModuleHelper().removeRemoteModuleInfoByMac(mac);
+				getHFModuleHelper().removeMyLocalModuleInfoByMac(mac);
+				getHFModuleHelper().removeLocalModuleInfoByMac(mac);
+				getHFModuleHelper().removeNewModuleInfoByMac(mac);	
+			}
+		}catch(JSONException e){
+			throw new HFModuleException(HFModuleException.ERR_DELETE_MODULE, "delete module err");
+		}
 	}
 
 	@Override
@@ -521,8 +858,10 @@ public class HFModuleManager implements IHFModuleManager {
 	
 	public boolean isCloudChannelLive() {
 		if (this.sid == null) {
+			Log.e("isCloudChannelLive", "fasle");
 			return false;
 		} else {
+			Log.e("isCloudChannelLive", getsid());
 			return true;
 		}
 	}

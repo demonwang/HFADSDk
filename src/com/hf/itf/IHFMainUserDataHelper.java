@@ -14,4 +14,5 @@ public interface IHFMainUserDataHelper {
 	public IHFKeyValueHelper getKeyvalueHelper();
 	public IHFLocalModuleInfoHelper getLocalModuleInfoHelper();
 	public IHFServerModuleInfoHelper getServerModuleInfoHelper();
+	public IHFShareModuleInfoHelper getHFShareModuleInfoHelper();
 }

@@ -8,7 +8,7 @@ import com.hf.info.ModuleInfo;
 import com.hf.itf.IHFModuleHelper;
 
 public class HFModuleHelper implements IHFModuleHelper{
-	private ArrayList<ModuleInfo> localModuleInfos = new ArrayList<ModuleInfo>();
+	//private ArrayList<ModuleInfo> localModuleInfos = new ArrayList<ModuleInfo>();
 	private ArrayList<ModuleInfo> newModuleInfos = new ArrayList<ModuleInfo>();
 	
 	private HFLocalSaveHelper localsaveHelper = HFLocalSaveHelper.getInstence().init();
@@ -152,31 +152,29 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public ArrayList<ModuleInfo> getAllLocalModuleInfo() {
 		// TODO Auto-generated method stub
-		return this.localModuleInfos;
+		return localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().getAll();
 	}
 
 	@Override
 	public void setAllLocalModuleInfo(ArrayList<ModuleInfo> mis) {
 		// TODO Auto-generated method stub
-		if(mis == null)
-			return ;
-		this.localModuleInfos = mis;
+		localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().putAll(mis);
 	}
 
 	@Override
 	public void addLocalModuleInfo(ModuleInfo mi) {
 		// TODO Auto-generated method stub
-		this.localModuleInfos.add(mi);
+		localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().put(mi.getMac(), mi);
 	}
 
 	@Override
 	public void removeLocalModuleInfoByMac(String mac) {
 		// TODO Auto-generated method stub
-		Iterator<ModuleInfo> it = localModuleInfos.iterator();
+		Iterator<ModuleInfo> it = localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().getAll().iterator();
 		while(it.hasNext()){
 			ModuleInfo mi = it.next();
 			if(mi.getMac().equalsIgnoreCase(mac)){
-				localModuleInfos.remove(mi);
+				localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().remove(mi);
 			}
 		}
 	}
@@ -184,13 +182,13 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public void removeAllLocalModuleInfo() {
 		// TODO Auto-generated method stub
-		this.localModuleInfos = new ArrayList<ModuleInfo>();
+		localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().clear();
 	}
 
 	@Override
 	public ModuleInfo getLocalModuleInfoByMac(String mac) {
 		// TODO Auto-generated method stub
-		Iterator<ModuleInfo> it = localModuleInfos.iterator();
+		Iterator<ModuleInfo> it = localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().getAll().iterator();
 		ModuleInfo mi = null;
 		while(it.hasNext()){
 			mi = it.next();
@@ -204,20 +202,20 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public ModuleInfo getLocalModuleInfoByIndex(int index) {
 		// TODO Auto-generated method stub
-		return localModuleInfos.get(index);
+		return localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().getAll().get(index);
 	}
 
 	@Override
 	public int getLocalModuleInfoNum() {
 		// TODO Auto-generated method stub
-		return localModuleInfos.size();
+		return localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().getAll().size();
 	}
 
 	@Override
 	public int getLocalModuleOnlineNum() {
 		// TODO Auto-generated method stub
 		int onlineNum = 0;
-		Iterator<ModuleInfo> it = localModuleInfos.iterator();
+		Iterator<ModuleInfo> it = localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().getAll().iterator();
 		while(it.hasNext()){
 			ModuleInfo mi = it.next();
 			if(mi != null){
@@ -230,8 +228,7 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public void updatLocalModuleLocalIp() {
 		// TODO Auto-generated method stub
-		Iterator<ModuleInfo> it = localModuleInfos.iterator();
-		checkArginTime(localModuleInfos);
+		localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().checkArginTime();
 	}
 
 	@Override
@@ -325,8 +322,7 @@ public class HFModuleHelper implements IHFModuleHelper{
 	        ModuleInfo mi = (ModuleInfo) iter.next();
 	        if(mi.getLocalIp() != null){
 		        long lastTimestamp = mi.getLastTimestamp();
-		        long nowTimestamp = new java.util.Date().getTime();
-		        
+		        long nowTimestamp = new java.util.Date().getTime();		        
 		        long tmpTimestap = HFConfigration.pulseInterval*2;
 		        if( nowTimestamp > (lastTimestamp + tmpTimestap) ){
 		        	mi.setLocalIp(null);

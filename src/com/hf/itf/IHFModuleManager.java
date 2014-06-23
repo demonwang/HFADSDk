@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.hf.info.KeyValueInfo;
 import com.hf.info.ModuleInfo;
+import com.hf.info.UserInfo;
 import com.hf.util.HFModuleException;
 
 public interface IHFModuleManager {
@@ -16,21 +17,20 @@ public interface IHFModuleManager {
 	public void login() throws HFModuleException;
 	public void logout() throws HFModuleException;
 	public void registerUser();
-	public void getUser();
-	public void setUser();
+	public UserInfo getUser() throws HFModuleException;
+	public void setUser(UserInfo ui) throws HFModuleException;
 	public void deleteUser();
-	public void changePassword(String old,String newpswd);
-	public void retrievePassword(String email);
-	public void setKeyValueInfo(KeyValueInfo kv);
-	public KeyValueInfo getKeyvalueInfo(String key);
-	public void deleteKeyValueInfo(String key);
-	public IHFModuleLocalManager getHFModuleLocalManager();
+	public void changePassword(String old,String newpswd) throws HFModuleException;
+	public void retrievePassword(String receiverAddress, int receiverType) throws HFModuleException;
+	public void setKeyValueInfo(KeyValueInfo kv) throws HFModuleException;
+	public KeyValueInfo getKeyvalueInfo(String key) throws HFModuleException;
+	public void deleteKeyValueInfo(String key) throws HFModuleException;
 	public void registerEventListener(IHFModuleEventListener li);
 	public void unregisterEventListener(IHFModuleEventListener li);
 	public void removeAllListener();
-	public void setModule(ModuleInfo mi);
-	public void getModule(String mac);
-	public void deleteModule(String mac);
+	public ModuleInfo setModule(ModuleInfo mi) throws HFModuleException;
+	public ModuleInfo getModule(String mac)throws HFModuleException;
+	public void deleteModule(String mac) throws HFModuleException;
 	public ArrayList<ModuleInfo> getAllModule() throws HFModuleException;
 	public IHFModuleHelper getHFModuleHelper();
 	
