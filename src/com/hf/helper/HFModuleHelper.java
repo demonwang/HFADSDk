@@ -9,7 +9,7 @@ import com.hf.itf.IHFModuleHelper;
 
 public class HFModuleHelper implements IHFModuleHelper{
 	private ArrayList<ModuleInfo> localModuleInfos = new ArrayList<ModuleInfo>();
-	private ArrayList<ModuleInfo> newModuleInfos = new ArrayList<>();
+	private ArrayList<ModuleInfo> newModuleInfos = new ArrayList<ModuleInfo>();
 	
 	private HFLocalSaveHelper localsaveHelper = HFLocalSaveHelper.getInstence().init();
 		
@@ -184,7 +184,7 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public void removeAllLocalModuleInfo() {
 		// TODO Auto-generated method stub
-		this.localModuleInfos = new ArrayList<>();
+		this.localModuleInfos = new ArrayList<ModuleInfo>();
 	}
 
 	@Override
@@ -269,7 +269,7 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public void removeAllNewModuleInfo() {
 		// TODO Auto-generated method stub
-		this.newModuleInfos = new ArrayList<>();
+		this.newModuleInfos = new ArrayList<ModuleInfo>();
 	}
 
 	@Override

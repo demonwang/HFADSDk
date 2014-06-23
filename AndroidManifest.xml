@@ -6,7 +6,11 @@
 
     <uses-sdk
         android:minSdkVersion="14"
+<<<<<<< HEAD
+        android:targetSdkVersion="18" />
+=======
         android:targetSdkVersion="19" />
+>>>>>>> 208e459ae7b77f73673c9f16231b0fb60fa583fd
 	<uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
@@ -31,7 +35,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<<<<<<< HEAD
         <activity android:name="com.example.hfadsdk.ModuleList"></activity>
+=======
+<<<<<<< HEAD
+=======
+        <activity android:name="com.example.hfadsdk.ModuleList"></activity>
+>>>>>>> 208e459ae7b77f73673c9f16231b0fb60fa583fd
+>>>>>>> 5346b0272205303de565c084b92396d3c166acc3
     </application>
 
 </manifest>

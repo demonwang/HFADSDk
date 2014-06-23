@@ -16,7 +16,11 @@ import android.widget.TextView;
 
 public class ModuleList extends Activity{
 	private ListView modulelist ;
+<<<<<<< HEAD
 	ArrayList<ModuleInfo> mis = new ArrayList<>();
+=======
+	ArrayList<ModuleInfo> mis = new ArrayList<ModuleInfo>();
+>>>>>>> 5346b0272205303de565c084b92396d3c166acc3
 	ArrayList<ModuleInfo> remote;
 	ArrayList<ModuleInfo> mylocal;
 	ArrayList<ModuleInfo> local;
