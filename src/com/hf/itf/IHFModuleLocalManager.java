@@ -5,6 +5,6 @@ import com.hf.util.HFModuleException;
 
 public interface IHFModuleLocalManager {
 	public void sendLocalBeatNow();
-	public void setNewModuleLocalInfo(ModuleInfo mi) throws HFModuleException;
+	public ModuleInfo setNewModuleLocalInfo(ModuleInfo mac) throws HFModuleException;
 	public IHFSMTLKHelper getHFSMTLKHelper();
 }

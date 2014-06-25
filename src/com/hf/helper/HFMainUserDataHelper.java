@@ -23,7 +23,7 @@ public class HFMainUserDataHelper implements IHFMainUserDataHelper{
 	public static final String KEYVALUE = "KEYVALUE";
 	public static final String SERVDATA = "SERVDATA";
 	public static final String LOCALDATA = "LOCALDATA";
-	private static final String SHAREDATA = "SHAREDATA";
+	public static final String SHAREDATA = "SHAREDATA";
 	
 	private String userName;
 	private String userNickName;

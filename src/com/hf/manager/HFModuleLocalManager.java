@@ -34,7 +34,6 @@ public class HFModuleLocalManager implements IHFModuleLocalManager {
 	public void sendLocalBeatNow() {
 		// TODO Auto-generated method stub
 		new Thread(new Runnable() {
-
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -66,13 +65,12 @@ public class HFModuleLocalManager implements IHFModuleLocalManager {
 	}
 
 	@Override
-	public void setNewModuleLocalInfo(ModuleInfo mi) throws HFModuleException {
+	public ModuleInfo setNewModuleLocalInfo(ModuleInfo  mi) throws HFModuleException {
 		// TODO Auto-generated method stub
 		if(mi == null){
 			throw new HFModuleException(HFModuleException.ERR_SET_MODULE_LOCCAL_INFO, "your module is null");
 		}
 		//set local key
-		
 		try{
 			T1Message t1 = new T1Message();
 			Head1 h1 = new Head1();
@@ -116,10 +114,11 @@ public class HFModuleLocalManager implements IHFModuleLocalManager {
 			h2.setSn(ByteTool.Int2Byte(new Random(2048).nextInt()));
 			h2.setFid(ByteTool.Int2Byte(mi.getFactoryId()));
 			h2.setDtype(ByteTool.Int2Byte(mi.getType()));
-			ByteBuffer bf1 = ByteBuffer.allocate(10+HFConfigration.cloudDomain.getBytes().length);
+			ByteBuffer bf1 = ByteBuffer.allocate(12+HFConfigration.cloudDomain.getBytes().length);
 			bf1.put(ByteTool.Int2Byte(HFConfigration.cloudPort));
 			byte[] rsv = new byte[8];
 			bf1.put(rsv);
+			bf1.put(ByteTool.Int2Byte(HFConfigration.cloudDomain.getBytes().length));
 			bf1.put(HFConfigration.cloudDomain.getBytes());
 			h2.setT2(bf1.array());
 			t1.setH1(h1);
@@ -135,13 +134,7 @@ public class HFModuleLocalManager implements IHFModuleLocalManager {
 				throw new HFModuleException(HFModuleException.ERR_SET_MODULE_LOCCAL_INFO, "set moduel server domain err");
 			}
 			mi.setLocalKey(HFConfigration.defLocalKey);
-			try{
-				mi.setName("New Module");
-				mi = ManagerFactory.getManager().setModule(mi);
-				ManagerFactory.getManager().getHFModuleHelper().addRemoteModuleInfo(mi);
-			}catch(Exception e){
-				ManagerFactory.getManager().getHFModuleHelper().addMyLocalModuleInfo(mi);
-			}
+			return mi;
 		}catch(Exception e){
 			throw new HFModuleException(HFModuleException.ERR_SET_MODULE_LOCCAL_INFO, "set moduel  err");
 		}		

@@ -26,7 +26,7 @@ public class HFConfigration {
 	public static int 	 localUDPPort = 38899;
 	public static InetAddress broudcastIp ;
 	public static int 	 macTMsgPacketSize = 2048;
-	public static int 	 pulseInterval = 30; //second
+	public static int 	 pulseInterval = 5; //second
 	public static int 	 defautTimeout = 5000;
 	public static Context appContex; //
 	

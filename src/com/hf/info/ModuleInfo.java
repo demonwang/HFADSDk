@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.hf.lib.util.AES;
 
 public class ModuleInfo implements java.io.Serializable {
@@ -53,7 +55,6 @@ public class ModuleInfo implements java.io.Serializable {
 
 		if (localIp != null)
 			sb.append("localIp=").append(localIp).append(",");
-
 		if (id != null)
 			sb.append("id=").append(id).append(",");
 		if (accessKey != null)
@@ -118,6 +119,7 @@ public class ModuleInfo implements java.io.Serializable {
 	}
 
 	public void setLocalIp(String localIp) {
+		Log.e("localIp", localIp+"");
 		this.localIp = localIp;
 	}
 
@@ -330,12 +332,16 @@ public class ModuleInfo implements java.io.Serializable {
 		try{this.city = pl.getString("city");}catch(Exception e){}
 		try{this.district = pl.getString("district");}catch(Exception e){}
 		try{this.online = pl.getBoolean("online");}catch(Exception e){}
+		try{this.localIp = pl.getString("localIp");}catch(Exception e){}
 	}
 
 	public String toJson() {
 		JSONObject json = new JSONObject();
 		if(id != null){
 			try{json.put ("moduleId", this.id);}catch(Exception e){}
+		}
+		if(accessKey != null){
+			try{json.put ("accessKey", this.accessKey);}catch(Exception e){}
 		}
 		if(name != null){
 			try{json.put ("name", this.name);}catch(Exception e){}
@@ -399,6 +405,12 @@ public class ModuleInfo implements java.io.Serializable {
 		}
 		if(online != null){
 			try{json.put ("online", this.online);}catch(Exception e){}
+		}
+		if(localIp != null){
+			try{json.put("localIp", this.localIp);}catch(Exception e){}
+		}
+		if(lastTimestamp != 0){
+			try{json.put("lastTimestamp", this.lastTimestamp);}catch(Exception e){}
 		}
 		return json.toString();
 	}

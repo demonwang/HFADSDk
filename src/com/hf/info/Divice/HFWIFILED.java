@@ -2,6 +2,7 @@ package com.hf.info.Divice;
 
 import java.nio.ByteBuffer;
 
+import com.hf.cmd.T2Massage;
 import com.hf.util.ByteTool;
 
 /**
@@ -36,6 +37,32 @@ import com.hf.util.ByteTool;
  *
  */
 public class HFWIFILED {
+	private int temp;
+	private int light;
+	private boolean stat;
+	
+	
+	
+	public int getTemp() {
+		return temp;
+	}
+	public void setTemp(int temp) {
+		this.temp = temp;
+	}
+	public int getLight() {
+		return light;
+	}
+	public void setLight(int light) {
+		this.light = light;
+	}
+	public boolean isStat() {
+		return stat;
+	}
+	public void setStat(boolean stat) {
+		this.stat = stat;
+	}
+	
+	
 	public byte[] setTempCmd(int temp){
 		ByteBuffer bf = ByteBuffer.allocate(6);
 		bf.put(ByteTool.hexStringToBytes("FE06000280"));
@@ -65,5 +92,29 @@ public class HFWIFILED {
 		ByteBuffer bf = ByteBuffer.allocate(6);
 		bf.put(ByteTool.hexStringToBytes("FE06000283"));
 		return bf.array();
+	}
+	
+	public int getTempFormT2(T2Massage t2){
+		return t2.getData()[0];
+	}
+	
+	public int getLightFromT2(T2Massage t2){
+		return t2.getData()[0];
+	}
+	public boolean getStatFromT2(T2Massage t2){
+		if(t2.getData()[0]==0x01){
+			return true;
+		}
+		return false;
+	}
+	
+	public void getAllStatFrom(T2Massage t2){
+		if(t2.getData()[0]==0x01){
+			stat = true;
+		}else{
+			stat = false;
+		}	
+		light = t2.getData()[1];
+		temp = t2.getData()[2];
 	}
 }

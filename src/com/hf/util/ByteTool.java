@@ -79,7 +79,7 @@ public class ByteTool {
 	public static byte[] Int2Byte(int x) {
 		byte[] b = new byte[2];
 		b[1] = (byte) (x & 0xff);
-		b[0] = (byte) (x & 0xff00 >> 8);
+		b[0] = (byte) ((x & 0xff00) >> 8);
 		return b;
 	}
 	

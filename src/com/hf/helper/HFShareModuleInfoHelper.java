@@ -7,10 +7,12 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.util.Log;
 
 import com.hf.data.HFConfigration;
 import com.hf.info.ModuleInfo;
@@ -21,18 +23,25 @@ public class HFShareModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 	private SharedPreferences sp ;
 	
 	public HFShareModuleInfoHelper(){
-		sp = HFConfigration.appContex.getSharedPreferences(HFMainUserDataHelper.SERVDATA, Context.MODE_PRIVATE);
-		String data = sp.getString(HFMainUserDataHelper.SERVDATA, "[]");
-		try {
-			JSONArray jsons = new JSONArray(data);
-			for (int i = 0; i < jsons.length(); i++) {
+		sp = HFConfigration.appContex.getSharedPreferences(HFMainUserDataHelper.SHAREDATA, Context.MODE_PRIVATE);
+		
+		Map<String,String > infos = (Map<String, String>) sp.getAll();
+		Iterator<String> it = infos.values().iterator();
+		while(it.hasNext()){
+			try {
+				String data = it.next();
+				if(data == null){
+					continue;
+				}
+				JSONObject json = new JSONObject(data);
 				ModuleInfo mi = new ModuleInfo();
-				mi.fromJson(jsons.getJSONObject(i));
-				this.put(mi.getMac(), mi);
+				mi.fromJson(json);
+				if(mi !=null)
+					this.put(mi.getMac(), mi);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	@Override
@@ -45,7 +54,7 @@ public class HFShareModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 	public synchronized ModuleInfo put(String key, ModuleInfo value) {
 		// TODO Auto-generated method stub
 		ModuleInfo old =  super.put(key, value);
-		save();
+		sp.edit().putString(key, value.toJson()).commit();
 		return old;
 	}
 
@@ -54,14 +63,14 @@ public class HFShareModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 			Map<? extends String, ? extends ModuleInfo> map) {
 		// TODO Auto-generated method stub
 		super.putAll(map);
-		save();
+		this.save();
 	}
 
 	@Override
 	public synchronized ModuleInfo remove(Object key) {
 		// TODO Auto-generated method stub
 		ModuleInfo old = super.remove(key);
-		save();
+		this.save();
 		return old;
 	}
 
@@ -69,7 +78,7 @@ public class HFShareModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 	public synchronized void clear() {
 		// TODO Auto-generated method stub
 		super.clear();
-		save();
+		this.save();
 	}
 	
 	public ArrayList<ModuleInfo> getAll(){
@@ -82,14 +91,14 @@ public class HFShareModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 		return mis;
 	}
 	private void save(){
-		Iterator<String > it = this.keySet().iterator();
-		JSONArray json = new JSONArray();
-		while(it.hasNext()){
-			String key = it.next();
-			json.put(this.get(key));
-		}
 		Editor e = sp.edit();
-		e.putString(HFMainUserDataHelper.LOCALDATA, json.toString());
+		e.clear();
+		Iterator<ModuleInfo > it = this.values().iterator();
+		while(it.hasNext()){
+			ModuleInfo mi = it.next();
+			e.putString(mi.getMac()	, mi.toJson());
+		}
+		e.commit();
 	}
 	@Override
 	public void putAll(ArrayList<ModuleInfo> mis) {
@@ -103,7 +112,7 @@ public class HFShareModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 			ModuleInfo mi = it.next();
 			this.put(mi.getMac(),mi);
 		}
-		save();
+		this.save();
 	}
 	@Override
 	public void checkArginTime() {
@@ -115,7 +124,7 @@ public class HFShareModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 		        long lastTimestamp = mi.getLastTimestamp();
 		        long nowTimestamp = new java.util.Date().getTime();
 		        
-		        long tmpTimestap = HFConfigration.pulseInterval*2;
+		        long tmpTimestap = HFConfigration.pulseInterval*2000;
 		        
 		        if( nowTimestamp > (lastTimestamp + tmpTimestap) ){
 		        	mi.setLocalIp(null);

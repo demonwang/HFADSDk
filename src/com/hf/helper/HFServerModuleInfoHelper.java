@@ -26,17 +26,23 @@ public class HFServerModuleInfoHelper extends Hashtable<String, ModuleInfo> impl
 	
 	public HFServerModuleInfoHelper(){
 		sp = HFConfigration.appContex.getSharedPreferences(HFMainUserDataHelper.LOCALDATA, Context.MODE_PRIVATE);
-		String data = sp.getString(HFMainUserDataHelper.SERVDATA, "[]");
-		try {
-			JSONArray jsons = new JSONArray(data);
-			for (int i = 0; i < jsons.length(); i++) {
+		Map<String,String > infos = (Map<String, String>) sp.getAll();
+		Iterator<String> it = infos.values().iterator();
+		while(it.hasNext()){
+			try {
+				String data = it.next();
+				if(data == null){
+					continue;
+				}
+				JSONObject json = new JSONObject(data);
 				ModuleInfo mi = new ModuleInfo();
-				mi.fromJson(jsons.getJSONObject(i));
-				this.put(mi.getMac(), mi);
+				mi.fromJson(json);
+				if(mi !=null)
+					this.put(mi.getMac(), mi);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
@@ -50,7 +56,7 @@ public class HFServerModuleInfoHelper extends Hashtable<String, ModuleInfo> impl
 	public synchronized ModuleInfo put(String key, ModuleInfo value) {
 		// TODO Auto-generated method stub
 		ModuleInfo old =  super.put(key, value);
-		save();
+		sp.edit().putString(key, value.toJson()).commit();
 		return old;
 	}
 
@@ -67,7 +73,7 @@ public class HFServerModuleInfoHelper extends Hashtable<String, ModuleInfo> impl
 	public synchronized ModuleInfo remove(Object key) {
 		// TODO Auto-generated method stub
 		ModuleInfo old = super.remove(key);
-		save();
+		this.save();
 		return old;
 	}
 
@@ -75,7 +81,7 @@ public class HFServerModuleInfoHelper extends Hashtable<String, ModuleInfo> impl
 	public synchronized void clear() {
 		// TODO Auto-generated method stub
 		super.clear();
-		save();
+		this.save();
 	}
 	
 	public ArrayList<ModuleInfo> getAll(){
@@ -89,14 +95,14 @@ public class HFServerModuleInfoHelper extends Hashtable<String, ModuleInfo> impl
 	}
 	
 	private void save(){
-		Iterator<String > it = this.keySet().iterator();
-		JSONArray json = new JSONArray();
-		while(it.hasNext()){
-			String key = it.next();
-			json.put(this.get(key));
-		}
 		Editor e = sp.edit();
-		e.putString(HFMainUserDataHelper.SERVDATA, json.toString());
+		e.clear();
+		Iterator<ModuleInfo > it = this.values().iterator();
+		while(it.hasNext()){
+			ModuleInfo mi = it.next();
+			e.putString(mi.getMac()	, mi.toJson());
+		}
+		e.commit();
 	}
 
 	@Override

@@ -2,7 +2,7 @@ package com.hf.cmd;
 
 public class Flag {
 	private boolean needReply = false;
-	private boolean sendCmd = false;
+	private boolean sendCmd = true;
 	private boolean registed = false;
 	private boolean includeT2 = false;
 	private boolean remoteRegisted = false;
@@ -13,27 +13,43 @@ public class Flag {
 	public Flag unpack(byte flag) {
 		if ((flag & 1) == 1) {
 			needReply = true;
+		}else{
+			needReply = false;
 		}
 		if (((flag >> 1) & 1) == 1) {
 			sendCmd = false;
+		}else{
+			sendCmd = true;
 		}
 		if (((flag >> 2) & 1) == 1) {
 			registed = true;
+		}else{
+			registed = false;
 		}
 		if (((flag >> 3) & 1) == 1) {
 			includeT2 = true;
+		}else{
+			includeT2 = false;
 		}
 		if (((flag >> 4) & 1) == 1) {
 			remoteRegisted = true;
+		}else{
+			remoteRegisted = false;
 		}
 		if (((flag >> 5) & 1) == 1) {
 			encryptType = true;
+		}else{
+			encryptType = false;
 		}
 		if (((flag >> 6) & 1) == 1) {
 			encrypted = true;
+		}else{
+			encrypted = false;
 		}
 		if (((flag >> 7) & 1) == 1) {
 			resv = true;
+		}else{
+			resv = false;
 		}
 		return this;
 
@@ -108,13 +124,13 @@ public class Flag {
 		if (needReply) {
 			flag |= 1;
 		}
-		if (needReply) {
+		if (!sendCmd) {
 			flag |= 1 << 1;
 		}
-		if (sendCmd) {
+		if (registed) {
 			flag |= 1 << 2;
 		}
-		if (registed) {
+		if (includeT2) {
 			flag |= 1 << 3;
 		}
 		if (remoteRegisted) {

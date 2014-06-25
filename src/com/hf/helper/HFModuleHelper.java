@@ -170,13 +170,7 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public void removeLocalModuleInfoByMac(String mac) {
 		// TODO Auto-generated method stub
-		Iterator<ModuleInfo> it = localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().getAll().iterator();
-		while(it.hasNext()){
-			ModuleInfo mi = it.next();
-			if(mi.getMac().equalsIgnoreCase(mac)){
-				localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().remove(mi);
-			}
-		}
+		localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().remove(mac);
 	}
 
 	@Override
@@ -188,15 +182,7 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public ModuleInfo getLocalModuleInfoByMac(String mac) {
 		// TODO Auto-generated method stub
-		Iterator<ModuleInfo> it = localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().getAll().iterator();
-		ModuleInfo mi = null;
-		while(it.hasNext()){
-			mi = it.next();
-			if(mi.getMac().equalsIgnoreCase(mac)){
-				return mi;
-			}
-		}
-		return mi;
+		return localsaveHelper.getMainUserInfoHelper().getHFShareModuleInfoHelper().get(mac);
 	}
 
 	@Override
@@ -248,7 +234,7 @@ public class HFModuleHelper implements IHFModuleHelper{
 	@Override
 	public void addNewModuleInfo(ModuleInfo mi) {
 		// TODO Auto-generated method stub
-		this.newModuleInfos.add(mi);
+		this.newModuleInfos.add(mi); 
 	}
 
 	@Override
@@ -280,7 +266,7 @@ public class HFModuleHelper implements IHFModuleHelper{
 				return mi;
 			}
 		}
-		return mi;
+		return null;
 	}
 
 	@Override
@@ -319,7 +305,7 @@ public class HFModuleHelper implements IHFModuleHelper{
 		// TODO Auto-generated method stub
 		Iterator<ModuleInfo> iter = mis.iterator();
 		while (iter.hasNext()) {
-	        ModuleInfo mi = (ModuleInfo) iter.next();
+	        ModuleInfo mi =  iter.next();
 	        if(mi.getLocalIp() != null){
 		        long lastTimestamp = mi.getLastTimestamp();
 		        long nowTimestamp = new java.util.Date().getTime();		        

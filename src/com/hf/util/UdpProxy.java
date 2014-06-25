@@ -14,6 +14,7 @@ public class UdpProxy {
 		byte[] buff = new byte[HFConfigration.macTMsgPacketSize];
 		try {
 			DatagramSocket socket = new DatagramSocket();
+			socket.setSoTimeout(HFConfigration.defautTimeout);
 			DatagramPacket sendpkg = new DatagramPacket(data, data.length,InetAddress.getByName(ip),HFConfigration.localUDPPort);
 			socket.send(sendpkg);
 			DatagramPacket recvpkg = new DatagramPacket(buff, buff.length);

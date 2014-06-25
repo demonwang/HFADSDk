@@ -1,13 +1,6 @@
 package com.hf.info.Divice;
 
-public class HFZigbee {
-	
-	
-	
-	
-	
-	
-	
+public class HFZigbee {	
 	class HFZigbeeLight{
 		
 	}

@@ -7,9 +7,12 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.util.Log;
 
 import com.hf.data.HFConfigration;
 import com.hf.info.ModuleInfo;
@@ -25,17 +28,24 @@ public class HFLocalModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 	
 	public HFLocalModuleInfoHelper(){
 		sp = HFConfigration.appContex.getSharedPreferences(HFMainUserDataHelper.LOCALDATA, Context.MODE_PRIVATE);
-		String data = sp.getString(HFMainUserDataHelper.LOCALDATA, "[]");
-		try {
-			JSONArray jsons = new JSONArray(data);
-			for (int i = 0; i < jsons.length(); i++) {
+		
+		Map<String,String > infos = (Map<String, String>) sp.getAll();
+		Iterator<String> it = infos.values().iterator();
+		while(it.hasNext()){
+			try {
+				String data = it.next();
+				if(data == null){
+					continue;
+				}
+				JSONObject json = new JSONObject(data);
 				ModuleInfo mi = new ModuleInfo();
-				mi.fromJson(jsons.getJSONObject(i));
-				this.put(mi.getMac(), mi);
+				mi.fromJson(json);
+				if(mi !=null)
+					this.put(mi.getMac(), mi);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	@Override
@@ -48,7 +58,7 @@ public class HFLocalModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 	public synchronized ModuleInfo put(String key, ModuleInfo value) {
 		// TODO Auto-generated method stub
 		ModuleInfo old =  super.put(key, value);
-		save();
+		sp.edit().putString(key, value.toJson()).commit();
 		return old;
 	}
 
@@ -85,14 +95,14 @@ public class HFLocalModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 		return mis;
 	}
 	private void save(){
-		Iterator<String > it = this.keySet().iterator();
-		JSONArray json = new JSONArray();
-		while(it.hasNext()){
-			String key = it.next();
-			json.put(this.get(key));
-		}
 		Editor e = sp.edit();
-		e.putString(HFMainUserDataHelper.LOCALDATA, json.toString());
+		e.clear();
+		Iterator<ModuleInfo > it = this.values().iterator();
+		while(it.hasNext()){
+			ModuleInfo mi = it.next();
+			e.putString(mi.getMac()	, mi.toJson());
+		}
+		e.commit();
 	}
 	@Override
 	public void putAll(ArrayList<ModuleInfo> mis) {
@@ -106,7 +116,7 @@ public class HFLocalModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 			ModuleInfo mi = it.next();
 			this.put(mi.getMac(),mi);
 		}
-		save();
+		this.save();
 	}
 	@Override
 	public void checkArginTime() {

@@ -69,8 +69,7 @@ public class HISFManager implements IHFSFManager{
 					try {
 						ManagerFactory.getManager().setModule(mi);
 						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getServerModuleInfoHelper().put(mi.getMac(), mi);
-						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getLocalModuleInfoHelper().remove(mi.getMac());
-						
+						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getLocalModuleInfoHelper().remove(mi.getMac());						
 					} catch (Exception e) {
 						// TODO: handle exception
 						e.printStackTrace();

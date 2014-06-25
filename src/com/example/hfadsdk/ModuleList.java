@@ -1,8 +1,10 @@
 package com.example.hfadsdk;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.hf.ManagerFactory;
+import com.hf.data.HFConfigration;
 import com.hf.info.KeyValueInfo;
 import com.hf.info.ModuleInfo;
 import com.hf.info.UserInfo;
@@ -63,7 +65,7 @@ public class ModuleList extends Activity {
 					public void run() {
 						// TODO Auto-generated method stub
 						try {
-							ManagerFactory.getManager().getHFModuleLocalManager().setNewModuleLocalInfo(mis.get(position));
+							ManagerFactory.getManager().deleteModule(mis.get(position).getMac());
 						} catch (HFModuleException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -153,8 +155,40 @@ public class ModuleList extends Activity {
 			
 			*/
 				
-			
-			
+		/*	while(true){
+				remote = ManagerFactory.getManager().getHFModuleHelper()
+						.getAllRemoteModuleInfo();
+				mylocal = ManagerFactory.getManager().getHFModuleHelper()
+						.getMyLocalModuleInfoAll();
+				local = ManagerFactory.getManager().getHFModuleHelper()
+						.getAllLocalModuleInfo();
+				New = ManagerFactory.getManager().getHFModuleHelper()
+						.getAllNewModuleInfo();
+				Iterator<ModuleInfo > it = remote.iterator();
+				while(it.hasNext()){
+					ModuleInfo mi = it.next();
+					Log.e("remote", mi.getMac());
+				}
+				
+				Iterator<ModuleInfo > it2 = mylocal.iterator();
+				while(it2.hasNext()){
+					ModuleInfo mi = it2.next();
+					Log.e("mylocal", mi.getMac());
+				}
+				
+				Iterator<ModuleInfo > it3 = local.iterator();
+				while(it3.hasNext()){
+					ModuleInfo mi = it3.next();
+					Log.e("local", mi.getMac());
+				}
+				
+				Iterator<ModuleInfo > it4 = New.iterator();
+				while(it4.hasNext()){
+					ModuleInfo mi = it4.next();
+					Log.e("New", mi.getMac());
+				}
+				ByteTool.sleep(HFConfigration.pulseInterval);
+			}*/
 			}
 		}).start();
 	}
@@ -194,7 +228,6 @@ public class ModuleList extends Activity {
 			} else {
 				tv.setText("" + mis.get(position).getMac() + ":new");
 			}
-			Log.e("module", mis.get(position).toJson());
 			return convertView;
 		}
 	};
