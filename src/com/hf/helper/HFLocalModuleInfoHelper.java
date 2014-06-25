@@ -7,8 +7,6 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -19,6 +17,10 @@ import com.hf.itf.IHFLocalModuleInfoHelper;
 
 public class HFLocalModuleInfoHelper extends Hashtable<String, ModuleInfo> implements IHFLocalModuleInfoHelper{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private SharedPreferences sp ;
 	
 	public HFLocalModuleInfoHelper(){

@@ -12,7 +12,6 @@ import com.hf.manager.HISFManager;
 public class ManagerFactory {
 	private static IHFModuleManager manager = null;
 	private static IHFSFManager sfmanger = null;
-	private static IHFModuleLocalManager moduellocalmanager = null;
 	
 	
 	public static IHFModuleManager getManager(){
@@ -27,12 +26,5 @@ public class ManagerFactory {
 		}
 		return sfmanger;
 	}
-	public IHFModuleLocalManager getHFModuleLocalManager() {
-		// TODO Auto-generated method stub
-		Log.d("HFModuleManager", "getHFModuleLocalManager");
-		if(moduellocalmanager == null){
-			moduellocalmanager = new HFModuleLocalManager();
-		}
-		return moduellocalmanager;
-	}
+	
 }

@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.json.JSONArray;
@@ -23,12 +24,15 @@ import android.util.Log;
 
 import com.hf.ManagerFactory;
 import com.hf.cmd.T1Message;
+import com.hf.cmd.T2Massage;
 import com.hf.data.HFConfigration;
 import com.hf.helper.HFLocalSaveHelper;
 import com.hf.helper.HFModuleHelper;
+import com.hf.info.GPIO;
 import com.hf.info.KeyValueInfo;
 import com.hf.info.ModuleInfo;
 import com.hf.info.UserInfo;
+import com.hf.info.Divice.HFGPIO;
 import com.hf.itf.IHFModuleEventListener;
 import com.hf.itf.IHFModuleHelper;
 import com.hf.itf.IHFModuleLocalManager;
@@ -42,9 +46,11 @@ import com.hf.util.HttpProxy;
 public class HFModuleManager implements IHFModuleManager {
 	private DatagramSocket localBeatSocket;
 	private boolean isAppRunning = false;
-	private String sid;
+	public static String sid;
 	private ArrayList<IHFModuleEventListener> eventListenerList = new ArrayList<IHFModuleEventListener>();
 	private IHFModuleHelper hfModuleManager = null;
+	
+	private static IHFModuleLocalManager moduellocalmanager = null;
 	
 	private void setSid(String sid){
 		this.sid = sid;
@@ -420,13 +426,13 @@ public class HFModuleManager implements IHFModuleManager {
 			JSONObject jo = new JSONObject(rsp);
 
 			if(jo.isNull("RC")){
-				throw new HFModuleException(HFModuleException.ERR_DELETE_KEYVALUE, "can not set keyvalue");
+				throw new HFModuleException(HFModuleException.ERR_DELETE_KEYVALUE, "can not delete keyvalue");
 			}
 			if (jo.getInt("RC") != 1) {
-				throw new HFModuleException(HFModuleException.ERR_DELETE_KEYVALUE, "can not set keyvalue");
+				throw new HFModuleException(HFModuleException.ERR_DELETE_KEYVALUE, "can not delete keyvalue");
 			}
 		}catch(JSONException e){
-			throw new HFModuleException(HFModuleException.ERR_DELETE_KEYVALUE, "can not set keyvalue");
+			throw new HFModuleException(HFModuleException.ERR_DELETE_KEYVALUE, "can not delete keyvalue");
 		}
 	}
 
@@ -444,6 +450,9 @@ public class HFModuleManager implements IHFModuleManager {
 		Log.d("HFModuleManager", "setModule");
 		if (!this.isCloudChannelLive()) {
 			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "User is not online");
+		}
+		if(mi == null){
+			throw new HFModuleException(HFModuleException.ERR_SET_MODULE, "your moduleinfo is null");
 		}
 		try{
 			mi.setAccessKey(HFConfigration.accessKey);
@@ -769,8 +778,24 @@ public class HFModuleManager implements IHFModuleManager {
 					msg.unpack(t1);
 					switch (msg.getH1().getCmd()) {
 					case 0x10:
-						Log.e("EVENT", ByteTool.Byte2StringWithSpace(msg.getH2().getT2()));
-						break;						
+						T2Massage t2 = new T2Massage();
+						t2.unpack(msg.getH2().getT2());
+						if (t2.getFlag2() == 0x01) {
+							// GPIO event
+							GPIO g = new GPIO();
+							ArrayList<GPIO> gpios = g.unpack(t2.getData());
+							notifyGPIOEvent(mac,gpios);
+						} else if (t2.getFlag2() == 0x02) {
+							// timer event
+							Log.e("UNReadyInterface", ByteTool.Byte2StringWithSpace(msg.getH2().getT2()));
+						} else if ((t2.getFlag2() & 0x0f) == 0x03) {
+							// ENTM
+							Log.e("UNReadyInterface", ByteTool.Byte2StringWithSpace(msg.getH2().getT2()));
+						} else {
+							System.out.println("TAG1_EVENT3");
+							Log.e("UNReadyInterface", ByteTool.Byte2StringWithSpace(msg.getH2().getT2()));
+						}
+						break;	
 					default:
 						break;
 					}
@@ -804,7 +829,7 @@ public class HFModuleManager implements IHFModuleManager {
 		}
 	}
 	
-	private void notifyGPIOEvent(String mac){
+	private void notifyGPIOEvent(String mac ,ArrayList<GPIO> gpios){
 		Iterator<IHFModuleEventListener> it = this.eventListenerList.iterator();
 		while(it.hasNext()){
 			it.next().onGPIOEvent(mac);
@@ -849,6 +874,17 @@ public class HFModuleManager implements IHFModuleManager {
 			return "255.255.255.255";
 		}
 	}
+	
+	@Override
+	public IHFModuleLocalManager getHFModuleLocalManager() {
+		// TODO Auto-generated method stub
+		Log.d("HFModuleManager", "getHFModuleLocalManager");
+		if(moduellocalmanager == null){
+			moduellocalmanager = new HFModuleLocalManager(localBeatSocket);
+		}
+		return moduellocalmanager;
+	}
+	
 	@Override
 	public void stopLocalTimer() {
 		// TODO Auto-generated method stub

@@ -33,9 +33,10 @@ public interface IHFModuleManager {
 	public void deleteModule(String mac) throws HFModuleException;
 	public ArrayList<ModuleInfo> getAllModule() throws HFModuleException;
 	public IHFModuleHelper getHFModuleHelper();
-	
+	public IHFModuleLocalManager getHFModuleLocalManager();
 	public void startRemoteRefreshTimer();
 	
 	public void startLocalTimer() throws HFModuleException;
 	public void stopLocalTimer();
+	public boolean isCloudChannelLive();
 }

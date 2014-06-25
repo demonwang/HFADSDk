@@ -33,6 +33,7 @@ public class UdpProxy {
 			DatagramSocket socket = new DatagramSocket(localPort);
 			DatagramPacket sendpkg = new DatagramPacket(data, data.length,HFConfigration.broudcastIp,remotePort);
 			socket.send(sendpkg);
+			socket.close();
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			throw new HFModuleException(HFModuleException.ERR_SEND_CMD,e.getMessage());

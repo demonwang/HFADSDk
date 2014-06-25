@@ -69,7 +69,7 @@ public class ByteTool {
 		}
 		return s;
 	}
-
+	
 	/**
 	 * only get last Two bytes
 	 * 

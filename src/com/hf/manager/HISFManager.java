@@ -3,6 +3,8 @@ package com.hf.manager;
 import java.net.SocketException;
 import java.util.ArrayList;
 
+import android.util.Log;
+
 import com.hf.ManagerFactory;
 import com.hf.data.HFConfigration;
 import com.hf.helper.HFLocalSaveHelper;
@@ -19,11 +21,10 @@ public class HISFManager implements IHFSFManager{
 		if(HFLocalSaveHelper.getInstence().isIsfristRun()){
 			HFLocalSaveHelper.getInstence().setIsfristRun(false);
 			return HISF_FIRSTRUN;
-		}
-		
+		}		
 		if(HFLocalSaveHelper.getInstence().isIsregisted()){
 			HFLocalSaveHelper.getInstence().loadConfigration();
-			ManagerFactory.getManager().startLocalTimer();
+			ManagerFactory.getManager().startLocalTimer();			
 			return HISF_SERVER_MODE;
 		}else{
 			return HISF_UNLOGIN;
@@ -62,9 +63,9 @@ public class HISFManager implements IHFSFManager{
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				Log.e("syncRemoteModuleInfo", "syncRemoteModuleInfo");
 				ArrayList<ModuleInfo> locals  = HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getLocalModuleInfoHelper().getAll();
 				for(ModuleInfo mi : locals){
-					
 					try {
 						ManagerFactory.getManager().setModule(mi);
 						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getServerModuleInfoHelper().put(mi.getMac(), mi);

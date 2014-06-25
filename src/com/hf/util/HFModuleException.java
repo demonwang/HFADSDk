@@ -35,6 +35,12 @@ public class HFModuleException extends Exception{
 
 	public static final int ERR_DELETE_MODULE = -515;
 
+	public static final int ERR_SET_MODULE_LOCCAL_INFO = -516;
+
+	public static final int ERR_SEND_LOCAL_MSG = -516;
+
+	public static final int ERR_SEND_SERVER_MSG = -517;
+
 	public HFModuleException(int errorCode,String e){
 		super(e);
 		this.errorCode = errorCode;

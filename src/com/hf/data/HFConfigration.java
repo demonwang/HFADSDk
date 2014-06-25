@@ -32,4 +32,7 @@ public class HFConfigration {
 	
 	
 	public static String defLocalKey = "1234567890abcdef";
+	public static int cloudPort = 47172;
+	public static String cloudDomain = "node-cn.iotworkshop.com";
+	public static int smartlinkPort = 39999;
 }

@@ -8,9 +8,14 @@ import com.hf.info.ModuleInfo;
  *
  */
 public interface IHFSendAsyncCmdHelper {
-	public void sendCmdAsync(ModuleInfo mi,byte[] t2,AsyncCmdEvent evt);
+	public void sendCmdAutoAsync(ModuleInfo mi,byte[] t2,AsyncCmdEvent evt);
 	public void sendLocalCmdAsync(ModuleInfo mi,byte[] t2,AsyncCmdEvent evt);
 	interface  AsyncCmdEvent {
+		/**
+		 * 
+		 * @param mi
+		 * @param t2 if is null  send err
+		 */
 		void onRecv(ModuleInfo mi,byte[] t2);
 	}
 }
