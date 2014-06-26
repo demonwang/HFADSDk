@@ -153,6 +153,7 @@ public class HFModuleManager implements IHFModuleManager {
 				throw new HFModuleException(json.getInt("RC"),
 						json.getString("RN"));
 			}
+			HFLocalSaveHelper.getInstence().setIsregisted(false);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			throw new HFModuleException(HFModuleException.ERR_JSON_DECODE,
@@ -590,10 +591,7 @@ public class HFModuleManager implements IHFModuleManager {
 	public void deleteModule(String mac) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "deleteModule");
-		if (!this.isCloudChannelLive()) {
-			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE,
-					"User is not online");
-		}
+		
 
 		try {
 			ModuleInfo mi = getHFModuleHelper().getRemoteModuleInfoByMac(mac);
@@ -615,10 +613,11 @@ public class HFModuleManager implements IHFModuleManager {
 			} else {
 				if (mi.getId() == null) {
 					getHFModuleHelper().removeRemoteModuleInfoByMac(mac);
-					getHFModuleHelper().removeMyLocalModuleInfoByMac(mac);
-					getHFModuleHelper().removeLocalModuleInfoByMac(mac);
-					getHFModuleHelper().removeNewModuleInfoByMac(mac);
 					return;
+				}
+				if (!this.isCloudChannelLive()) {
+					getHFModuleHelper().removeRemoteModuleInfoByMac(mac);
+					return ;
 				}
 				// ***
 				String reqTemplate = "{'PL':{'moduleId':'#moduleId#'},'CID':30021,'SID':'#SID#'}";
@@ -739,7 +738,7 @@ public class HFModuleManager implements IHFModuleManager {
 				ManagerFactory.getManager().getHFModuleHelper()
 						.updatNewModuleLocalIp();
 				try {
-					localBeatSocket.send(beat);
+					localBeatSocket.send(beat);			
 					if (HFLocalSaveHelper.getInstence().isIsregisted()) {
 						if (getsid() == null) {
 							login();
@@ -774,8 +773,8 @@ public class HFModuleManager implements IHFModuleManager {
 		int domainNum = 0;
 
 		private void changeDomain() {
-			String[] domians = { "http://115.29.164.59/usvc/",
-					"http://115.29.164.59/usvc/", "http://115.29.164.59/usvc/" };
+			String[] domians = { "http://node-cn.iotworkshop.com/usvc/",
+					"http://node-cn.iotworkshop.com/usvc/", "http://node-cn.iotworkshop.com/usvc/" };
 			if (domainNum == 3)
 				domainNum = 0;
 			HFConfigration.cloudServiceUrl = domians[domainNum];
@@ -856,18 +855,12 @@ public class HFModuleManager implements IHFModuleManager {
 						mi.setLastTimestamp(new java.util.Date().getTime());
 						mi.setAccessKey(HFConfigration.accessKey);
 						if (deviceBelongType == 1) {
-							Log.e("update remote ModuleInfo",
-									mac + ":" + mi.toJson());
 							getHFModuleHelper().addRemoteModuleInfo(mi);
 						}
 						if (deviceBelongType == 2) {
-							Log.e("update mylocal ModuleInfo",
-									mac + ":" + mi.toJson());
 							getHFModuleHelper().addMyLocalModuleInfo(mi);
 						}
 						if (deviceBelongType == 3) {
-							Log.e("update local ModuleInfo",
-									mac + ":" + mi.toJson());
 							getHFModuleHelper().addLocalModuleInfo(mi);
 						}
 						return;

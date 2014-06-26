@@ -21,13 +21,12 @@ public class HISFManager implements IHFSFManager{
 		if(HFLocalSaveHelper.getInstence().isIsfristRun()){
 			HFLocalSaveHelper.getInstence().setIsfristRun(false);
 			return HISF_FIRSTRUN;
-		}		
+		}
+		
 		if(HFLocalSaveHelper.getInstence().isIsregisted()){
-			HFLocalSaveHelper.getInstence().loadConfigration();
-			ManagerFactory.getManager().startLocalTimer();			
 			return HISF_SERVER_MODE;
 		}else{
-			return HISF_UNLOGIN;
+			return HISF_LOCAL_MODE;
 		}
 	}
 

@@ -56,24 +56,25 @@ public class HFLocalSaveHelper  {
 		sp = HFConfigration.appContex.getSharedPreferences(APP_LOCAL_DATA_SP, Context.MODE_PRIVATE);
 		this.isfristRun = sp.getBoolean(FIRSTRUN, true);
 		this.isregisted = sp.getBoolean(REGISTED, false);
-		this.lastRunState = sp.getString(LASTRUNTIME, "20140601");
-		
+		this.lastRunState = sp.getString(LASTRUNTIME, "20140601");		
 		Editor e = sp.edit();
+		
 		e.putString(LASTRUNTIME, new Date().toGMTString());
 		e.commit();
 		
 		this.lastRunState = sp.getString(LASTRUNSTATE, RUNSTAT_LOCAL);
-		this.serverDomain = sp.getString(SERVDOMAIN, "http://115.29.164.59/usvc/");//"www.iotworkshop.com"
+		this.serverDomain = sp.getString(SERVDOMAIN, "http://node-cn.iotworkshop.com/usvc/");//"www.iotworkshop.com"
 		this.localPort = sp.getInt(LOCALPORT, 38899);
 		this.routerInfoHelper = new HFRouterInfoHelper();
 		this.mainUserInfoHelper = new HFMainUserDataHelper();
-		this.accesskey = sp.getString(ACCESSKEY, "8a21049f466068f90146607eaaa1022a");
+		this.accesskey = sp.getString(ACCESSKEY, "8a21049f466105fc0146d199e35100f5");
 		return this;
 	}
 	public void saveHFConfigration(){
 		setLocalPort(HFConfigration.localUDPPort);
 		setServerDomain(HFConfigration.cloudServiceUrl);
 		setAccesskey(HFConfigration.accessKey);
+		
 		getMainUserInfoHelper().setEmail(HFConfigration.cloudUserEmail);
 		getMainUserInfoHelper().setPhone(HFConfigration.cloudUserPhone);
 		getMainUserInfoHelper().setPswd(HFConfigration.cloudPassword);

@@ -37,6 +37,7 @@ public class MainActivity extends Activity {
 	public static class PlaceholderFragment extends Fragment implements IHFModuleEventListener{
 
 		public PlaceholderFragment() {
+			
 		}
 
 		@Override
@@ -72,27 +73,21 @@ public class MainActivity extends Activity {
 						int Mode  = ManagerFactory.getFSFManager().HISF_Start();
 						if(Mode == IHFSFManager.HISF_LOCAL_MODE){
 							Log.e("smart", "HISF_LOCAL_MODE");
+							ManagerFactory.getManager().startLocalTimer();
 						}
 						if(Mode == IHFSFManager.HISF_SERVER_MODE){
 							//start working
+							HFLocalSaveHelper.getInstence().loadConfigration();
+							ManagerFactory.getManager().startLocalTimer();
 							Log.e("smart", "HISF_SERVER_MODE");
 						}
 						
-						if(Mode == IHFSFManager.HISF_UNLOGIN){
-							//未登录
-							HFConfigration.cloudUserName = "demon001";
-							HFConfigration.cloudPassword = "123456";
-//							ManagerFactory.getFSFManager().HISF_Login();
-							HFLocalSaveHelper.getInstence().setIsregisted(true);
-							ManagerFactory.getManager().startLocalTimer();
-							Log.e("smart", "HISF_UNLOGIN");
-						}
 						
 						if(Mode == IHFSFManager.HISF_FIRSTRUN){
 							//第一次 运行
 							HFConfigration.cloudUserName = "demon001";
 							HFConfigration.cloudPassword = "123456";
-							ManagerFactory.getFSFManager().HISF_Login();
+							ManagerFactory.getManager().login();
 							ManagerFactory.getManager().startLocalTimer();
 							Log.e("smart", "HISF_FIRSTRUN");
 						}
@@ -122,7 +117,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-				
+					
 				}
 			}).start();
 		}
