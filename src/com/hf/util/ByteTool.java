@@ -1,6 +1,13 @@
 package com.hf.util;
 
 public class ByteTool {
+	/**
+	 * 
+	 * @param data
+	 * @param start
+	 * @param end
+	 * @return
+	 */
 	public static byte[] copyOfRange(byte[] data, int start, int end) {
 		if (data == null || start > end || data.length < end) {
 			return null;
@@ -11,7 +18,11 @@ public class ByteTool {
 		}
 		return dest;
 	}
-
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
 	public static String bytes2HexString(byte[] data) {
 		String ret = "";
 		for (int i = 0; i < data.length; i++) {
@@ -23,7 +34,11 @@ public class ByteTool {
 		}
 		return ret;
 	}
-
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
 	public static String Byte2StringWithSpace(byte[] data) {
 		String ret = "";
 		for (int i = 0; i < data.length; i++) {
@@ -36,7 +51,11 @@ public class ByteTool {
 		}
 		return ret;
 	}
-	
+	/**
+	 * 
+	 * @param hexString
+	 * @return
+	 */
 	public static byte[] hexStringToBytes(String hexString) {  
 	    if (hexString == null || hexString.equals("")) {  
 	        return null;  
@@ -61,7 +80,11 @@ public class ByteTool {
 	    return (byte) "0123456789ABCDEF".indexOf(c);  
 	}  
 
-	 
+	 /**
+	  * mean to short
+	  * @param bytes length == 2
+	  * @return
+	  */
 	public static int Byte2Int(byte[] bytes) {
 		int s = 0;
 		for (int i = 0; i < bytes.length; i++) {
@@ -74,7 +97,7 @@ public class ByteTool {
 	 * only get last Two bytes
 	 * 
 	 * @param x
-	 * @return
+	 * @return bytes length == 2
 	 */
 	public static byte[] Int2Byte(int x) {
 		byte[] b = new byte[2];
@@ -83,7 +106,10 @@ public class ByteTool {
 		return b;
 	}
 	
-	
+	/**
+	 * 
+	 * @param times
+	 */
 	public static void sleep(int times){
 		try {
 			Thread.sleep(1000*times);

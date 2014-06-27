@@ -28,6 +28,10 @@ public class HFConfigration {
 	public static int 	 macTMsgPacketSize = 2048;
 	public static int 	 pulseInterval = 5; //second
 	public static int 	 defautTimeout = 5000;
+	
+	/**
+	 * Initialized when the program is running
+	 */
 	public static Context appContex; //
 
 	public static String defLocalKey = "1234567890abcdef";

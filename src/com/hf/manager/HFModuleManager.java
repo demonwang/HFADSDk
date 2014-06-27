@@ -162,7 +162,7 @@ public class HFModuleManager implements IHFModuleManager {
 	}
 
 	@Override
-	public void registerUser() {
+	public void registerUser() throws HFModuleException{
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "registerUser");
 	}

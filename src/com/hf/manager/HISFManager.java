@@ -1,12 +1,10 @@
 package com.hf.manager;
 
-import java.net.SocketException;
 import java.util.ArrayList;
 
 import android.util.Log;
 
 import com.hf.ManagerFactory;
-import com.hf.data.HFConfigration;
 import com.hf.helper.HFLocalSaveHelper;
 import com.hf.info.ModuleInfo;
 import com.hf.itf.IHFSFManager;
@@ -18,8 +16,8 @@ public class HISFManager implements IHFSFManager{
 	public int HISF_Start() throws HFModuleException {
 		// TODO Auto-generated method stub
 		HFLocalSaveHelper.getInstence().init();
-		if(HFLocalSaveHelper.getInstence().isIsfristRun()){
 			HFLocalSaveHelper.getInstence().setIsfristRun(false);
+		if(HFLocalSaveHelper.getInstence().isIsfristRun()){
 			return HISF_FIRSTRUN;
 		}
 		

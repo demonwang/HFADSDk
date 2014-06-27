@@ -20,7 +20,11 @@ import com.hf.smartlink.HFSMTLKHelper;
 import com.hf.util.ByteTool;
 import com.hf.util.HFModuleException;
 import com.hf.util.UdpProxy;
-
+/**
+ * 
+ * @author Administrator
+ *
+ */
 public class HFModuleLocalManager implements IHFModuleLocalManager {
 
 	private static IHFSMTLKHelper smartlinkHelper = null;

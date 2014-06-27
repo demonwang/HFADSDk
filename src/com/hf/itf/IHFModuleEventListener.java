@@ -1,9 +1,11 @@
 package com.hf.itf;
 
-import java.util.HashMap;
-
 import com.hf.info.ModuleInfo;
-
+/**
+ * Event notification interface 
+ * @author Administrator
+ *
+ */
 public interface IHFModuleEventListener {
 	/**
 	 * @param mac

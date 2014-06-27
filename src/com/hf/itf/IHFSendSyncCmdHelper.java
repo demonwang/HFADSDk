@@ -2,7 +2,11 @@ package com.hf.itf;
 
 import com.hf.info.ModuleInfo;
 import com.hf.util.HFModuleException;
-
+/**
+ * send cmd Sync
+ * @author Administrator
+ *
+ */
 public interface IHFSendSyncCmdHelper {
 
 	/**

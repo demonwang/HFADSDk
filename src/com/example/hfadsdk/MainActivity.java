@@ -71,17 +71,18 @@ public class MainActivity extends Activity {
 					try {
 						HFConfigration.appContex = getActivity();
 						int Mode  = ManagerFactory.getFSFManager().HISF_Start();
+						
 						if(Mode == IHFSFManager.HISF_LOCAL_MODE){
 							Log.e("smart", "HISF_LOCAL_MODE");
 							ManagerFactory.getManager().startLocalTimer();
 						}
+						
 						if(Mode == IHFSFManager.HISF_SERVER_MODE){
 							//start working
 							HFLocalSaveHelper.getInstence().loadConfigration();
 							ManagerFactory.getManager().startLocalTimer();
 							Log.e("smart", "HISF_SERVER_MODE");
 						}
-						
 						
 						if(Mode == IHFSFManager.HISF_FIRSTRUN){
 							//第一次 运行
@@ -91,6 +92,7 @@ public class MainActivity extends Activity {
 							ManagerFactory.getManager().startLocalTimer();
 							Log.e("smart", "HISF_FIRSTRUN");
 						}
+						
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import com.hf.info.ModuleInfo;
-
+/**
+ * this Module setLocalKey and server ip &port  but not bind to this user  Map
+ * @author Administrator
+ *
+ */
 public interface IHFLocalModuleInfoHelper {
 	public ModuleInfo get(Object key);
 	public ModuleInfo put(String key, ModuleInfo value);

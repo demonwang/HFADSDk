@@ -1,14 +1,14 @@
 package com.hf;
 
-import android.util.Log;
-
-import com.hf.itf.IHFModuleLocalManager;
 import com.hf.itf.IHFModuleManager;
 import com.hf.itf.IHFSFManager;
-import com.hf.manager.HFModuleLocalManager;
 import com.hf.manager.HFModuleManager;
 import com.hf.manager.HISFManager;
-
+/**
+ * 
+ * @author Administrator
+ *
+ */
 public class ManagerFactory {
 	private static IHFModuleManager manager = null;
 	private static IHFSFManager sfmanger = null;
@@ -20,6 +20,7 @@ public class ManagerFactory {
 		}
 		return manager;
 	}
+	
 	public static IHFSFManager getFSFManager(){
 		if(sfmanger == null){
 			sfmanger = new HISFManager();
