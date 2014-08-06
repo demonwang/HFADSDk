@@ -48,6 +48,7 @@ public class HFLocalSaveHelper  {
 	public static HFLocalSaveHelper getInstence(){
 		if(me == null){
 			me = new HFLocalSaveHelper();
+			me.sp = HFConfigration.appContex.getSharedPreferences(APP_LOCAL_DATA_SP, Context.MODE_PRIVATE);
 		}
 		return me;
 	}

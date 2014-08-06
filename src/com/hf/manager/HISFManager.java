@@ -39,7 +39,7 @@ public class HISFManager implements IHFSFManager{
 	public int HISF_Register() {
 		// TODO Auto-generated method stub
 		try {
-			ManagerFactory.getManager().registerUser();
+//			ManagerFactory.getInstance().getModuleManager().registerUser();
 			return HISF_REGIST_OK;
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -64,7 +64,7 @@ public class HISFManager implements IHFSFManager{
 				ArrayList<ModuleInfo> locals  = HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getLocalModuleInfoHelper().getAll();
 				for(ModuleInfo mi : locals){
 					try {
-						ManagerFactory.getManager().setModule(mi);
+						ManagerFactory.getInstance().getModuleManager().setModule(mi);
 						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getServerModuleInfoHelper().put(mi.getMac(), mi);
 						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getLocalModuleInfoHelper().remove(mi.getMac());						
 					} catch (Exception e) {
@@ -74,7 +74,7 @@ public class HISFManager implements IHFSFManager{
 				}	
 				
 				try {
-					ManagerFactory.getManager().getAllModule();
+					ManagerFactory.getInstance().getModuleManager().getAllModule();
 					li.onSyncSuccess();
 				} catch (HFModuleException e) {
 					// TODO Auto-generated catch block

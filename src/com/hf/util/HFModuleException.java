@@ -1,6 +1,8 @@
 package com.hf.util;
 
 public class HFModuleException extends Exception{
+	private static final long serialVersionUID = 1L;
+
 	private int errorCode = 0;
 	
 	public static final int ERR_SEND_CMD = -500;
@@ -46,7 +48,7 @@ public class HFModuleException extends Exception{
 		this.errorCode = errorCode;
 	}
 	
-	public int getErrcode(){
+	public int getErrorCode(){
 		return this.errorCode;
 	}
 }

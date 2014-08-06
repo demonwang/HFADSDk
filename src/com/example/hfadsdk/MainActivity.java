@@ -1,11 +1,16 @@
 package com.example.hfadsdk;
 
+import java.net.InetAddress;
+
 import com.hf.ManagerFactory;
 import com.hf.data.HFConfigration;
 import com.hf.helper.HFLocalSaveHelper;
 import com.hf.info.ModuleInfo;
 import com.hf.itf.IHFModuleEventListener;
+import com.hf.itf.IHFModuleManager;
 import com.hf.itf.IHFSFManager;
+import com.hf.manager.HFModuleLocalManager;
+import com.hf.smartlink.HFSMTLKHelper;
 import com.hf.util.HFModuleException;
 
 import android.app.Activity;
@@ -62,7 +67,9 @@ public class MainActivity extends Activity {
 					startActivity(i);
 				}
 			});
-			ManagerFactory.getManager().registerEventListener(this);
+			
+			final IHFModuleManager moduleManager = ManagerFactory.getInstance().getModuleManager();
+			moduleManager.registerEventListener(this);
 			new Thread(new Runnable() {
 				
 				@Override
@@ -70,28 +77,32 @@ public class MainActivity extends Activity {
 					// TODO Auto-generated method stub
 					try {
 						HFConfigration.appContex = getActivity();
-						int Mode  = ManagerFactory.getFSFManager().HISF_Start();
+//						int Mode  = ManagerFactory.getFSFManager().HISF_Start();
+//						
+//						if(Mode == IHFSFManager.HISF_LOCAL_MODE){
+//							Log.e("smart", "HISF_LOCAL_MODE");
+//							ManagerFactory.getManager().startLocalTimer();
+//						}
+//						
+//						if(Mode == IHFSFManager.HISF_SERVER_MODE){
+//							//start working
+//							HFLocalSaveHelper.getInstence().loadConfigration();
+//							ManagerFactory.getManager().startLocalTimer();
+//							Log.e("smart", "HISF_SERVER_MODE");
+//						}
+//						
+//						if(Mode == IHFSFManager.HISF_FIRSTRUN){
+//							//ï¿½ï¿½Ò»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+//							HFConfigration.cloudUserName = "demon001";
+//							HFConfigration.cloudPassword = "123456";
+//							ManagerFactory.getManager().login();
+//							ManagerFactory.getManager().startLocalTimer();
+//							Log.e("smart", "HISF_FIRSTRUN");
+//						}
 						
-						if(Mode == IHFSFManager.HISF_LOCAL_MODE){
-							Log.e("smart", "HISF_LOCAL_MODE");
-							ManagerFactory.getManager().startLocalTimer();
-						}
-						
-						if(Mode == IHFSFManager.HISF_SERVER_MODE){
-							//start working
-							HFLocalSaveHelper.getInstence().loadConfigration();
-							ManagerFactory.getManager().startLocalTimer();
-							Log.e("smart", "HISF_SERVER_MODE");
-						}
-						
-						if(Mode == IHFSFManager.HISF_FIRSTRUN){
-							//µÚÒ»´Î ÔËÐÐ
-							HFConfigration.cloudUserName = "demon001";
-							HFConfigration.cloudPassword = "123456";
-							ManagerFactory.getManager().login();
-							ManagerFactory.getManager().startLocalTimer();
-							Log.e("smart", "HISF_FIRSTRUN");
-						}
+						HFConfigration.broudcastIp = InetAddress.getByName("255.255.255.255");
+//						moduleManager.startLocalTimer();
+						moduleManager.getHFModuleLocalManager().getHFSMTLKHelper().startSmartlinkV30("19860608");
 						
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -111,7 +122,7 @@ public class MainActivity extends Activity {
 		public void onCloudLogin(boolean loginstat) {
 			// TODO Auto-generated method stub
 			Log.e("Fragment", "onCloudLogin");
-			ManagerFactory.getManager().unregisterEventListener(this);
+			ManagerFactory.getInstance().getModuleManager().unregisterEventListener(this);
 			Intent i = new Intent(getActivity(), ModuleList.class);
 			startActivity(i);
 			new Thread(new Runnable() {

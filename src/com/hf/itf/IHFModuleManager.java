@@ -1,11 +1,12 @@
 package com.hf.itf;
 
-import java.net.SocketException;
 import java.util.ArrayList;
 
 import com.hf.info.KeyValueInfo;
+import com.hf.info.MessageReceiver;
 import com.hf.info.ModuleInfo;
 import com.hf.info.UserInfo;
+import com.hf.info.captcha.CaptchaImageInfo;
 import com.hf.util.HFModuleException;
 
 /**
@@ -14,32 +15,57 @@ import com.hf.util.HFModuleException;
  *
  */
 public interface IHFModuleManager {
+	
 	/**
-	 * Do userLogin before user this method please init HFconfigration
-	 * @throws SocketException 
-	 */
-	public void login() throws HFModuleException;
-	/**
-	 * release User SID  set to unregistered mode
+	 * @return
 	 * @throws HFModuleException
 	 */
-	public void logout() throws HFModuleException;
+	public CaptchaImageInfo captchaText(MessageReceiver captchaReceiver) throws HFModuleException;
 	/**
-	 * registerUser 
+	 * @return
+	 * @throws HFModuleException
 	 */
-	public void registerUser()throws HFModuleException;
+	public CaptchaImageInfo captchaImage() throws HFModuleException;
+	
+	/**
+	 * login with account and password
+	 * @param username
+	 * @param password
+	 * @return the session id
+	 * @throws HFModuleException
+	 */
+	public String login(String username, String password) throws HFModuleException;
+	
+	/**
+	 * logout from the cloud service
+	 * @param sessionId	the session id of the user to logout 
+	 * @throws HFModuleException
+	 */
+	public void logout(String sessionId) throws HFModuleException;
+	
+	/**
+	 * Register a user in cloud service 
+	 * @param userInfo the user info to register
+	 * @param captcha the captcha text
+	 * @return the user id 
+	 * @throws HFModuleException
+	 */
+	public String registerUser(UserInfo userInfo, String captcha) throws HFModuleException;
+	
 	/**
 	 * get current userInfo
 	 * @return
 	 * @throws HFModuleException
 	 */
-	public UserInfo getUser() throws HFModuleException;
+	public UserInfo getUser(String sessionId) throws HFModuleException;
+	
 	/**
-	 * modify userInfo to server sync HFconfigration & IHFmainUserDataHelper
-	 * @param ui
+	 * update user info to cloud service
+	 * @param sessionId the session id returned after user login 
+	 * @param userInfo the user info to update
 	 * @throws HFModuleException
 	 */
-	public void setUser(UserInfo ui) throws HFModuleException;
+	public void setUser(String sessionId, UserInfo userInfo) throws HFModuleException;
 	/**
 	 * only for root user 
 	 */
@@ -51,13 +77,13 @@ public interface IHFModuleManager {
 	 * @throws HFModuleException
 	 */
 	public void changePassword(String old,String newpswd) throws HFModuleException;
+	
 	/**
-	 * find pswd
-	 * @param receiverAddress
-	 * @param receiverType
+	 * retrieve password
+	 * @param receiver the password will send to, currently support email or sms 
 	 * @throws HFModuleException
 	 */
-	public void retrievePassword(String receiverAddress, int receiverType) throws HFModuleException;
+	public void retrievePassword(MessageReceiver receiver) throws HFModuleException;
 	/**
 	 * save develpoer private Data to server use Keyvalue
 	 * @param kv

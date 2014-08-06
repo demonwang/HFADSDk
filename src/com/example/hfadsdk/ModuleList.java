@@ -5,9 +5,11 @@ import java.util.Iterator;
 
 import com.hf.ManagerFactory;
 import com.hf.data.HFConfigration;
+import com.hf.helper.HFModuleHelper;
 import com.hf.info.KeyValueInfo;
 import com.hf.info.ModuleInfo;
 import com.hf.info.UserInfo;
+import com.hf.itf.IHFModuleHelper;
 import com.hf.util.ByteTool;
 import com.hf.util.HFModuleException;
 
@@ -38,14 +40,11 @@ public class ModuleList extends Activity {
 		setContentView(R.layout.module_list_layout);
 		modulelist = (ListView) findViewById(R.id.modulelist);
 
-		remote = ManagerFactory.getManager().getHFModuleHelper()
-				.getAllRemoteModuleInfo();
-		mylocal = ManagerFactory.getManager().getHFModuleHelper()
-				.getMyLocalModuleInfoAll();
-		local = ManagerFactory.getManager().getHFModuleHelper()
-				.getAllLocalModuleInfo();
-		New = ManagerFactory.getManager().getHFModuleHelper()
-				.getAllNewModuleInfo();
+		IHFModuleHelper moduleHelper = ManagerFactory.getInstance().getModuleManager().getHFModuleHelper();
+		remote = moduleHelper.getAllRemoteModuleInfo();
+		mylocal = moduleHelper.getMyLocalModuleInfoAll();
+		local = moduleHelper.getAllLocalModuleInfo();
+		New = moduleHelper.getAllNewModuleInfo();
 
 		mis.addAll(remote);
 		mis.addAll(mylocal);
@@ -65,7 +64,7 @@ public class ModuleList extends Activity {
 					public void run() {
 						// TODO Auto-generated method stub
 						try {
-							ManagerFactory.getManager().deleteModule(mis.get(position).getMac());
+							ManagerFactory.getInstance().getModuleManager().deleteModule(mis.get(position).getMac());
 						} catch (HFModuleException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

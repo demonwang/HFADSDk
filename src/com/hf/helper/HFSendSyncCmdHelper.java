@@ -55,7 +55,7 @@ public class HFSendSyncCmdHelper implements IHFSendSyncCmdHelper{
 	@Override
 	public byte[] sendServerMsg(ModuleInfo mi, byte[] msg) throws HFModuleException {
 		// TODO Auto-generated method stub
-		if(!ManagerFactory.getManager().isCloudChannelLive()){
+		if(!ManagerFactory.getInstance().getModuleManager().isCloudChannelLive()){
 			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "send ctrl msg to module err");
 		}
 			JSONObject joReq = new JSONObject();

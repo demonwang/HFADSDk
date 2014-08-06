@@ -10,22 +10,28 @@ import com.hf.manager.HISFManager;
  *
  */
 public class ManagerFactory {
+	
 	private static IHFModuleManager manager = null;
 	private static IHFSFManager sfmanger = null;
 	
+	private ManagerFactory() {
+		manager = new HFModuleManager();
+		sfmanger = new HISFManager();
+	}
 	
-	public static IHFModuleManager getManager(){
-		if(manager == null){
-			manager = new HFModuleManager();
-		}
+	private static class ManagerFactoryInner {
+		private static ManagerFactory managerFactory = new ManagerFactory();
+	}
+	
+	public static ManagerFactory getInstance() {
+		return ManagerFactoryInner.managerFactory;
+	}
+	
+	public IHFModuleManager getModuleManager(){
 		return manager;
 	}
 	
-	public static IHFSFManager getFSFManager(){
-		if(sfmanger == null){
-			sfmanger = new HISFManager();
-		}
+	public IHFSFManager getSFManager(){
 		return sfmanger;
 	}
-	
 }
