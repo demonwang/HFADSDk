@@ -50,6 +50,9 @@ public class SoundFileBuilder {
 	}
 
 	public void stop() {
+		if(!loop){
+			return;
+		}
 		if (adtc != null) {
 			adtc.release();
 			loop = false;
@@ -97,8 +100,8 @@ public class SoundFileBuilder {
 			byte[] b = new byte[2];
 			for (int i = 0; i < b.length; i++) {
 				b[i] = new Integer(temp & 0xff).byteValue();//
-				// ½«×îµÍÎ»±£´æÔÚ×îµÍÎ»
-				temp = temp >> 8; // ÏòÓÒÒÆ8Î»
+				// ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»
+				temp = temp >> 8; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½8Î»
 			}
 			return b;
 		}
@@ -150,7 +153,7 @@ public class SoundFileBuilder {
 	
 	public static short byteToShort(byte[] b) { 
         short s = 0; 
-        short s0 = (short) (b[0] & 0xff);// ×îµÍÎ» 
+        short s0 = (short) (b[0] & 0xff);// ï¿½ï¿½ï¿½Î» 
         short s1 = (short) (b[1] & 0xff); 
         s1 <<= 8; 
         s = (short) (s0 | s1); 
