@@ -36,3 +36,5 @@ Icon
 .Trashes
 
 bin/jarlist.cache
+/bin/
+/gen/
