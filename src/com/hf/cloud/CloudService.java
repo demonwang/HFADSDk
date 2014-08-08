@@ -1,8 +1,10 @@
 package com.hf.cloud;
 
 import com.hf.cloud.config.CloudConfig;
-import com.hf.cloud.manager.ISecurityManager;
-import com.hf.cloud.manager.SecurityManager;
+import com.hf.cloud.manager.ICloudModuleManager;
+import com.hf.cloud.manager.ICloudSecurityManager;
+import com.hf.cloud.manager.CloudModuleManager;
+import com.hf.cloud.manager.CloudSecurityManager;
 
 public class CloudService {
 	
@@ -32,7 +34,11 @@ public class CloudService {
 		return config.clone();
 	}
 
-	public ISecurityManager getSecurityManager() {
-		return new SecurityManager(getConfig());
+	public ICloudSecurityManager getCloudSecurityManager() {
+		return new CloudSecurityManager(getConfig());
+	}
+
+	public ICloudModuleManager getCloudModuleManager() {
+		return new CloudModuleManager(getConfig());
 	}
 }

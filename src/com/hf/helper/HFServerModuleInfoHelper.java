@@ -3,6 +3,7 @@ package com.hf.helper;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -106,7 +107,7 @@ public class HFServerModuleInfoHelper extends Hashtable<String, ModuleInfo> impl
 	}
 
 	@Override
-	public void putAll(ArrayList<ModuleInfo> mis) {
+	public void putAll(List<ModuleInfo> mis) {
 		// TODO Auto-generated method stub
 		if(mis == null){
 			return ;

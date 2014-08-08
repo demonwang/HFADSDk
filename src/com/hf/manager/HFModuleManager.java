@@ -8,8 +8,10 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,7 +28,14 @@ import com.hf.ManagerFactory;
 import com.hf.cloud.CloudService;
 import com.hf.cloud.config.CloudConfig;
 import com.hf.cloud.exception.CloudException;
-import com.hf.cloud.manager.ISecurityManager;
+import com.hf.cloud.manager.ICloudModuleManager;
+import com.hf.cloud.manager.ICloudSecurityManager;
+import com.hf.cloud.message.module.ModuleGetAllRequest;
+import com.hf.cloud.message.module.ModuleGetAllResponse;
+import com.hf.cloud.message.module.ModuleGetRequest;
+import com.hf.cloud.message.module.ModuleInfoResponse;
+import com.hf.cloud.message.module.ModuleSetRequest;
+import com.hf.cloud.message.module.payload.ModuleIdPayload;
 import com.hf.cloud.message.security.CaptchaEmailRequest;
 import com.hf.cloud.message.security.CaptchaImageRequest;
 import com.hf.cloud.message.security.CaptchaResponse;
@@ -76,7 +85,8 @@ public class HFModuleManager implements IHFModuleManager {
 	private static IHFModuleLocalManager moduellocalmanager = null;
 	
 	private CloudService cloudService;
-	private ISecurityManager securityManager;
+	private ICloudSecurityManager cloudSecurityManager;
+	private ICloudModuleManager cloudModuleManager;
 
 	private void setSid(String sid) {
 		this.sid = sid;
@@ -96,7 +106,8 @@ public class HFModuleManager implements IHFModuleManager {
 		cloudConfig.cloudServiceUrl = HFConfigration.cloudServiceUrl;
 		cloudConfig.defautTimeout = HFConfigration.defautTimeout;
 		cloudService.setConfig(cloudConfig);
-		securityManager = cloudService.getSecurityManager();
+		cloudSecurityManager = cloudService.getCloudSecurityManager();
+		cloudModuleManager = cloudService.getCloudModuleManager();
 	}
 
 	@Override
@@ -115,7 +126,7 @@ public class HFModuleManager implements IHFModuleManager {
 		CaptchaImageInfo captchaInfo = null;
 		CaptchaResponse captchaResponse;
 		try {
-			captchaResponse = securityManager.getCaptcha(request);
+			captchaResponse = cloudSecurityManager.getCaptcha(request);
 			captchaInfo = captchaResponse.getPayload();
 		} catch (CloudException e) {
 			e.printStackTrace();
@@ -131,7 +142,7 @@ public class HFModuleManager implements IHFModuleManager {
 		CaptchaImageInfo captchaInfo = null;
 		CaptchaResponse captchaResponse;
 		try {
-			captchaResponse = securityManager.getCaptcha(new CaptchaImageRequest());
+			captchaResponse = cloudSecurityManager.getCaptcha(new CaptchaImageRequest());
 			captchaInfo = captchaResponse.getPayload();
 		} catch (CloudException e) {
 			e.printStackTrace();
@@ -158,7 +169,7 @@ public class HFModuleManager implements IHFModuleManager {
 		request.setPayload(payload);
 		
 		try {
-			UserIdResponse response = securityManager.login(request);
+			UserIdResponse response = cloudSecurityManager.login(request);
 			
 			
 			//[should remove these code later]
@@ -229,7 +240,7 @@ public class HFModuleManager implements IHFModuleManager {
 		UserLogoutRequest request = new UserLogoutRequest();
 		request.setSessionId(sessionId);
 		try {
-			securityManager.logout(request);
+			cloudSecurityManager.logout(request);
 			
 			//[should remove these code later]
 			HFLocalSaveHelper.getInstence().setIsregisted(false);
@@ -280,7 +291,7 @@ public class HFModuleManager implements IHFModuleManager {
 		registerRequest.setPayload(payload);
 		
 		try {
-			UserIdResponse response = securityManager.registerUser(registerRequest);
+			UserIdResponse response = cloudSecurityManager.registerUser(registerRequest);
 			return response.getPayload().getUserId();
 		} catch (CloudException e) {
 			e.printStackTrace();
@@ -300,7 +311,7 @@ public class HFModuleManager implements IHFModuleManager {
 		UserGetRequest request = new UserGetRequest();
 		request.setSessionId(sessionId);
 		try {
-			UserResponse response = securityManager.getUser(request);
+			UserResponse response = cloudSecurityManager.getUser(request);
 			UserPayload payload = response.getPayload();
 			UserInfo userInfo = new UserInfo();
 			userInfo.setAccessKey(HFConfigration.accessKey);
@@ -395,7 +406,7 @@ public class HFModuleManager implements IHFModuleManager {
 		request.setSessionId(sessionId);
 		request.setPayload(payload);
 		try {
-			securityManager.setUser(request);
+			cloudSecurityManager.setUser(request);
 		} catch (CloudException e) {
 			e.printStackTrace();
 			throw new HFModuleException(e.getErrorCode(), e.getMessage());
@@ -502,7 +513,7 @@ public class HFModuleManager implements IHFModuleManager {
 		}
 		
 		try {
-			securityManager.retrievePassword(new RetrievePasswordRequest(payload));
+			cloudSecurityManager.retrievePassword(new RetrievePasswordRequest(payload));
 		} catch (CloudException e) {
 			e.printStackTrace();
 			throw new HFModuleException(e.getErrorCode(), e.getMessage());
@@ -665,100 +676,135 @@ public class HFModuleManager implements IHFModuleManager {
 	}
 
 	@Override
-	public ModuleInfo setModule(ModuleInfo mi) throws HFModuleException {
+	public ModuleInfo setModule(ModuleInfo moduleInfo) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "setModule");
-		if (!this.isCloudChannelLive()) {
-			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE,
-					"User is not online");
+//		if (!this.isCloudChannelLive()) {
+//			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE,
+//					"User is not online");
+//		}
+		if (moduleInfo == null) {
+			throw new IllegalArgumentException("moduleinfo is Null");
+//			throw new HFModuleException(HFModuleException.ERR_SET_MODULE,
+//					"your moduleinfo is null");
 		}
-		if (mi == null) {
-			throw new HFModuleException(HFModuleException.ERR_SET_MODULE,
-					"your moduleinfo is null");
-		}
+
+		moduleInfo.setAccessKey(HFConfigration.accessKey);
+		ModuleSetRequest request = new ModuleSetRequest(moduleInfo);
+		
 		try {
-			mi.setAccessKey(HFConfigration.accessKey);
-			JSONObject joReq = new JSONObject();
-			JSONObject pl = new JSONObject(mi.toJson());
-			joReq.put("PL", pl);
-			joReq.put("CID", 30011);
-			joReq.put("SID", this.getsid());
-
-			String req = joReq.toString();
-			String rsp = null;
-			rsp = HttpProxy.reqByHttpPost(req);
-			JSONObject jo = new JSONObject(rsp);
-
-			if (jo.isNull("RC")) {
-				throw new HFModuleException(HFModuleException.ERR_SET_MODULE,
-						"can not set module");
-			}
-
-			if (jo.getInt("RC") == 1) {
-				JSONObject rspPL = jo.getJSONObject("PL");
-				ModuleInfo rspInfo = new ModuleInfo();
-				rspInfo.fromJson(pl);
-
-				rspInfo.setLocalIp(mi.getLocalIp());
-				getHFModuleHelper().addRemoteModuleInfo(rspInfo);
-
-				return rspInfo;
-			} else {
-				throw new HFModuleException(HFModuleException.ERR_SET_MODULE,
-						"can not set module");
-			}
-		} catch (JSONException e) {
-			throw new HFModuleException(HFModuleException.ERR_SET_MODULE,
-					"can not set module");
+			ModuleInfoResponse response = cloudModuleManager.setModule(request);
+		
+			ModuleInfo responseModuleInfo = response.getPayload();
+			responseModuleInfo.setLocalIp(moduleInfo.getLocalIp());
+			getHFModuleHelper().addRemoteModuleInfo(responseModuleInfo);
+			
+			return responseModuleInfo;
+		} catch (CloudException e1) {
+			e1.printStackTrace();
+			throw new HFModuleException(e1.getErrorCode(), e1.getMessage());
 		}
+		
+//		try {
+//			JSONObject joReq = new JSONObject();
+//			JSONObject pl = new JSONObject(moduleInfo.toJson());
+//			joReq.put("PL", pl);
+//			joReq.put("CID", 30011);
+//			joReq.put("SID", this.getsid());
+//
+//			String req = joReq.toString();
+//			String rsp = null;
+//			rsp = HttpProxy.reqByHttpPost(req);
+//			JSONObject jo = new JSONObject(rsp);
+//
+//			if (jo.isNull("RC")) {
+//				throw new HFModuleException(HFModuleException.ERR_SET_MODULE,
+//						"can not set module");
+//			}
+//
+//			if (jo.getInt("RC") == 1) {
+//				JSONObject rspPL = jo.getJSONObject("PL");
+//				ModuleInfo rspInfo = new ModuleInfo();
+//				rspInfo.fromJson(pl);
+//
+//				rspInfo.setLocalIp(moduleInfo.getLocalIp());
+//				getHFModuleHelper().addRemoteModuleInfo(rspInfo);
+//
+//				return rspInfo;
+//			} else {
+//				throw new HFModuleException(HFModuleException.ERR_SET_MODULE,
+//						"can not set module");
+//			}
+//		} catch (JSONException e) {
+//			throw new HFModuleException(HFModuleException.ERR_SET_MODULE,
+//					"can not set module");
+//		}
 	}
 
 	@Override
 	public ModuleInfo getModule(String mac) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "getModule");
-		if (!this.isCloudChannelLive()) {
-			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE,
-					"User is not online");
-		}
+//		if (!this.isCloudChannelLive()) {
+//			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE,
+//					"User is not online");
+//		}
+		
 		ModuleInfo mi = getHFModuleHelper().getRemoteModuleInfoByMac(mac);
 		if (mi == null) {
 			throw new HFModuleException(
 					HFModuleException.ERR_GET_REMOTE_MODULEINFO,
 					"get moduleinfo from remote err");
 		}
-		if (mi.getId() == null) {
+		if (mi.getModuleId() == null) {
 			return mi;
 		}
+		
+		ModuleIdPayload payload = new ModuleIdPayload();
+		payload.setModuleId(mi.getModuleId());
+		ModuleGetRequest request = new ModuleGetRequest(payload);
 		try {
-			String reqTemplate = "{'PL':{'moduleId':'#moduleId#'},'CID':30031,'SID':'#SID#'}";
-			String req = reqTemplate.replaceFirst("#moduleId#", mi.getId())
-					.replaceFirst("#SID#", getsid());
-
-			String rsp = HttpProxy.reqByHttpPost(req);
-			JSONObject jo = new JSONObject(rsp);
-
-			if (jo.isNull("RC")) {
-				throw new HFModuleException(
-						HFModuleException.ERR_GET_REMOTE_MODULEINFO,
-						"get moduleinfo from remote err");
-			}
-			if (jo.getInt("RC") == 1) {
-				JSONObject rspPL = jo.getJSONObject("PL");
-				ModuleInfo rspInfo = new ModuleInfo();
-				rspInfo.fromJson(rspPL);
-
-				if (mi != null) {
-					rspInfo.setLocalIp(mi.getLocalIp());
-				}
-				getHFModuleHelper().addRemoteModuleInfo(mi);
-				return rspInfo;
-			} else {
-				return mi;
-			}
-		} catch (JSONException e) {
-			return mi;
+			ModuleInfoResponse response = cloudModuleManager.getModule(request);
+			ModuleInfo responseModuleInfo = response.getPayload();
+			responseModuleInfo.setLocalIp(mi.getLocalIp());
+			getHFModuleHelper().addRemoteModuleInfo(responseModuleInfo);
+			
+			return responseModuleInfo;
+		} catch (CloudException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+		
+		return mi;
+//		try {
+//			String reqTemplate = "{'PL':{'moduleId':'#moduleId#'},'CID':30031,'SID':'#SID#'}";
+//			String req = reqTemplate.replaceFirst("#moduleId#", mi.getModuleId())
+//					.replaceFirst("#SID#", getsid());
+//
+//			String rsp = HttpProxy.reqByHttpPost(req);
+//			JSONObject jo = new JSONObject(rsp);
+//
+//			if (jo.isNull("RC")) {
+//				throw new HFModuleException(
+//						HFModuleException.ERR_GET_REMOTE_MODULEINFO,
+//						"get moduleinfo from remote err");
+//			}
+//			if (jo.getInt("RC") == 1) {
+//				JSONObject rspPL = jo.getJSONObject("PL");
+//				ModuleInfo rspInfo = new ModuleInfo();
+//				rspInfo.fromJson(rspPL);
+//
+//				if (mi != null) {
+//					rspInfo.setLocalIp(mi.getLocalIp());
+//				}
+//				getHFModuleHelper().addRemoteModuleInfo(mi);
+//				return rspInfo;
+//			} else {
+//				return mi;
+//			}
+//		} catch (JSONException e) {
+//			return mi;
+//		}
 	}
 
 	@Override
@@ -785,7 +831,7 @@ public class HFModuleManager implements IHFModuleManager {
 					getHFModuleHelper().removeMyLocalModuleInfoByMac(mac);
 				}
 			} else {
-				if (mi.getId() == null) {
+				if (mi.getModuleId() == null) {
 					getHFModuleHelper().removeRemoteModuleInfoByMac(mac);
 					return;
 				}
@@ -795,7 +841,7 @@ public class HFModuleManager implements IHFModuleManager {
 				}
 				// ***
 				String reqTemplate = "{'PL':{'moduleId':'#moduleId#'},'CID':30021,'SID':'#SID#'}";
-				String req = reqTemplate.replaceFirst("#moduleId#", mi.getId())
+				String req = reqTemplate.replaceFirst("#moduleId#", mi.getModuleId())
 						.replaceFirst("#SID#", getsid());
 
 				String rsp = HttpProxy.reqByHttpPost(req);
@@ -823,38 +869,54 @@ public class HFModuleManager implements IHFModuleManager {
 	}
 
 	@Override
-	public ArrayList<ModuleInfo> getAllModule() throws HFModuleException {
+	public List<ModuleInfo> getAllModule() throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "getAllModule");
-		if (!this.isCloudChannelLive()) {
-			throw new HFModuleException(HFModuleException.ERR_COULD_NOT_ALIVE,
-					"sid == null");
-		}
-		String reqTemplate = "{'CID':30051,'SID':'#SID#'}";
-		String req = reqTemplate.replaceFirst("#SID#", getsid());
-		String rsp = HttpProxy.reqByHttpPost(req);
+//		if (!this.isCloudChannelLive()) {
+//			throw new HFModuleException(HFModuleException.ERR_COULD_NOT_ALIVE,
+//					"sid == null");
+//		}
+		
+		ModuleGetAllRequest request = new ModuleGetAllRequest();
 		try {
-			JSONObject json = new JSONObject(rsp);
-			ArrayList<ModuleInfo> result = new ArrayList<ModuleInfo>();
-			if (json.getInt("RC") == 1) {
-				JSONArray ja = json.getJSONArray("PL");
-				for (int i = 0; i < ja.length(); i++) {
-					ModuleInfo mi = new ModuleInfo();
-					mi.fromJson(ja.getJSONObject(i));
-					result.add(mi);
-				}
-				HFLocalSaveHelper.getInstence().getMainUserInfoHelper()
-						.getServerModuleInfoHelper().putAll(result);
-				return result;
-			} else {
-				throw new HFModuleException(json.getInt("RC"),
-						json.getString("RN"));
-			}
-		} catch (JSONException e) {
+			ModuleGetAllResponse response = cloudModuleManager.getAllModule(request);
+			List<ModuleInfo> modules = response.getPayload(); 
+			HFLocalSaveHelper.getInstence().getMainUserInfoHelper()
+			.getServerModuleInfoHelper().putAll(modules);
+			return modules;
+		} catch (CloudException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
+			throw new HFModuleException(e1.getErrorCode(), e1.getMessage());
 		}
-		return null;
+		
+//		return Collections.<ModuleInfo>emptyList();
+//		
+//		String reqTemplate = "{'CID':30051,'SID':'#SID#'}";
+//		String req = reqTemplate.replaceFirst("#SID#", getsid());
+//		String rsp = HttpProxy.reqByHttpPost(req);
+//		try {
+//			JSONObject json = new JSONObject(rsp);
+//			ArrayList<ModuleInfo> result = new ArrayList<ModuleInfo>();
+//			if (json.getInt("RC") == 1) {
+//				JSONArray ja = json.getJSONArray("PL");
+//				for (int i = 0; i < ja.length(); i++) {
+//					ModuleInfo mi = new ModuleInfo();
+//					mi.fromJson(ja.getJSONObject(i));
+//					result.add(mi);
+//				}
+//				HFLocalSaveHelper.getInstence().getMainUserInfoHelper()
+//						.getServerModuleInfoHelper().putAll(result);
+//				return result;
+//			} else {
+//				throw new HFModuleException(json.getInt("RC"),
+//						json.getString("RN"));
+//			}
+//		} catch (JSONException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return null;
 	}
 
 	@Override
@@ -924,10 +986,16 @@ public class HFModuleManager implements IHFModuleManager {
 					e.printStackTrace();
 					changeDomain();
 				}
-				Log.i("HFModuleManager", "sendBeat->"
-						+ HFConfigration.broudcastIp.getHostName() + ":"
-						+ HFConfigration.localUDPPort);
-				ByteTool.sleep(HFConfigration.pulseInterval);
+//				Log.i("HFModuleManager", "sendBeat->"
+//						+ HFConfigration.broudcastIp.getHostAddress() + ":"
+//						+ HFConfigration.localUDPPort);
+				
+				try {
+					Thread.sleep(HFConfigration.pulseInterval);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+//				ByteTool.sleep(HFConfigration.pulseInterval);
 			}
 		}
 

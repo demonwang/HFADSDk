@@ -1,6 +1,7 @@
 package com.hf.itf;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.hf.info.KeyValueInfo;
 import com.hf.info.MessageReceiver;
@@ -147,7 +148,7 @@ public interface IHFModuleManager {
 	 * @return
 	 * @throws HFModuleException
 	 */
-	public ArrayList<ModuleInfo> getAllModule() throws HFModuleException;
+	public List<ModuleInfo> getAllModule() throws HFModuleException;
 	/**
 	 * get ModuleHelper  for (get set add delete )localData of ModuleInfo 
 	 * @return

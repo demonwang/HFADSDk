@@ -124,7 +124,7 @@ public class HFShareModuleInfoHelper extends Hashtable<String, ModuleInfo> imple
 		        long lastTimestamp = mi.getLastTimestamp();
 		        long nowTimestamp = new java.util.Date().getTime();
 		        
-		        long tmpTimestap = HFConfigration.pulseInterval*2000;
+		        long tmpTimestap = HFConfigration.pulseInterval;
 		        
 		        if( nowTimestamp > (lastTimestamp + tmpTimestap) ){
 		        	mi.setLocalIp(null);

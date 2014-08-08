@@ -1,6 +1,7 @@
 package com.hf.itf;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.hf.info.ModuleInfo;
@@ -32,7 +33,7 @@ public interface IHFServerModuleInfoHelper {
 	 * 
 	 * @param mis
 	 */
-	public void putAll(ArrayList<ModuleInfo> mis);
+	public void putAll(List<ModuleInfo> mis);
 	/**
 	 * 
 	 * @param key

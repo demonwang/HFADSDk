@@ -1,316 +1,500 @@
 package com.hf.info;
 
-import java.util.HashMap;
-
 import org.json.JSONObject;
-
-import android.util.Log;
 
 import com.hf.lib.util.AES;
 
 public class ModuleInfo implements java.io.Serializable {
+	
+	public static final int TYPE_HF_SMART_LIGHT_WIFI_CT = 0x201;
+	public static final int TYPE_HF_SMART_LIGHT_WIFI_RGBW = 0x205;
+	public static final int TYPE_HF_SMART_LIGHT_WIFI_RGBW_CT = 0x206;
+	public static final int TYPE_HF_SMART_LIGHT_GATEWAY_WIFI = 0x301;
+	public static final int TYPE_HF_SMART_LIGHT_GATEWAY_ETHERNET = 0x302;
+	
 	private static final long serialVersionUID = 1L;
+	
+	private String moduleId;
+	/**
+	 * HEX string
+	 */
+	private String mac;
+	/**
+	 * Coded by base64
+	 */
+	private String localKey = AES.DEFAULT_KEY_128;
+	private Boolean needRemoteControl = true;
+	private String serialNo;
+	private Integer factoryId = null;
+	private Integer type = null;
+	private String hardwareVer;
+	private String softwareVer;
+	/**
+	 * Coded by base64
+	 */
+	private String tempKey;
+	/**
+	 * yyyyMMddhhmmss
+	 */
+	private String bindTime;
+	private Long totalOnlineTime = null;
+	private String internetIp;
+	private Double gpsLat = null;
+	private Double gpsLng = null;
+	/**
+	 * Like CN，US，EN
+	 */
+	private String country;
+	private String state;
+	private String city;
+	private String district;
+	private String image;
+	private Boolean online = false;
+	private Integer nodeType = 1;
+	private Integer pid = null;
+	private Integer orderNo = null;
 
-	// local
-	private String localIp = null;
+	private String localIp;
 	private long lastTimestamp = 0;
 
 	// cloud
-	private String id = null;
-	private String accessKey = null;
-	private String name = null;
-	private String desc = null;
-
-	private String mac = null; // HEX string
-	private String localKey = null; // Coded by base64
-	private Boolean needRemoteControl = true;
-
-	private String serialNo = null;
-	private Integer factoryId = null;
-	private Integer type = null;
-	private String hardwareVer = null;
-	private String softwareVer = null;
-	private String tempKey = null; // Coded by base64
-	private String bindTime = null;
-	private Long totalOnlineTime = null;
-
-	private String internetIp = null;
-	private Double gpsLat = null;
-	private Double gpsLng = null;
-	private String country = null;
-	private String state = null;
-	private String city = null;
-	private String district = null;
-
-	private Boolean online = false;
+	private String accessKey;
+	private String name;
+	private String desc;
 
 	public ModuleInfo() {
 		super();
 	}
-
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer("ModuleInfo[");
-		sb.append(super.toString()).append(",");
-
-		if (localIp != null)
-			sb.append("localIp=").append(localIp).append(",");
-		if (id != null)
-			sb.append("id=").append(id).append(",");
-		if (accessKey != null)
-			sb.append("accessKey=").append(accessKey).append(",");
-		if (name != null)
-			sb.append("name=").append(name).append(",");
-		if (desc != null)
-			sb.append("desc=").append(desc).append(",");
-		if (mac != null)
-			sb.append("mac=").append(mac).append(",");
-		if (localKey != null)
-			sb.append("localKey=").append(localKey).append(",");
-		if (needRemoteControl != null)
-			sb.append("needRemoteControl=").append(needRemoteControl)
-					.append(",");
-		if (serialNo != null)
-			sb.append("serialNo=").append(serialNo).append(",");
-		if (factoryId != null)
-			sb.append("factoryId=").append(factoryId).append(",");
-		if (type != null)
-			sb.append("type=").append(type).append(",");
-		if (hardwareVer != null)
-			sb.append("hardwareVer=").append(hardwareVer).append(",");
-		if (softwareVer != null)
-			sb.append("softwareVer=").append(softwareVer).append(",");
-		if (tempKey != null)
-			sb.append("tempKey=").append(tempKey).append(",");
-		if (bindTime != null)
-			sb.append("bindTime=").append(bindTime).append(",");
-		if (totalOnlineTime != null)
-			sb.append("totalOnlineTime=").append(totalOnlineTime).append(",");
-		if (internetIp != null)
-			sb.append("internetIp=").append(internetIp).append(",");
-		if (gpsLat != null)
-			sb.append("gpsLat=").append(gpsLat).append(",");
-		if (gpsLng != null)
-			sb.append("gpsLng=").append(gpsLng).append(",");
-		if (country != null)
-			sb.append("country=").append(country).append(",");
-		if (state != null)
-			sb.append("state=").append(state).append(",");
-		if (city != null)
-			sb.append("city=").append(city).append(",");
-		if (district != null)
-			sb.append("district=").append(district).append(",");
-		if (online != null)
-			sb.append("online=").append(online);
-		sb.append("]");
-		return sb.toString();
+	
+	/**
+	 * @return the moduleId
+	 */
+	public String getModuleId() {
+		return moduleId;
 	}
 
-	public long getLastTimestamp() {
-		return lastTimestamp;
+	/**
+	 * @param moduleId the moduleId to set
+	 */
+	public void setModuleId(String moduleId) {
+		this.moduleId = moduleId;
 	}
 
-	public void setLastTimestamp(long lastTimestamp) {
-		this.lastTimestamp = lastTimestamp;
-	}
-
-	public String getLocalIp() {
-		return localIp;
-	}
-
-	public void setLocalIp(String localIp) {
-		Log.e("localIp", localIp+"");
-		this.localIp = localIp;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getAccessKey() {
-		return accessKey;
-	}
-
-	public void setAccessKey(String accessKey) {
-		this.accessKey = accessKey;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDesc() {
-		return desc;
-	}
-
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
-
+	/**
+	 * @return the mac
+	 */
 	public String getMac() {
 		return mac;
 	}
 
+	/**
+	 * @param mac the mac to set
+	 */
 	public void setMac(String mac) {
 		this.mac = mac;
 	}
 
+	/**
+	 * @return the localKey
+	 */
 	public String getLocalKey() {
-		if (localKey == null)
-			localKey = AES.DEFAULT_KEY_128;
 		return localKey;
 	}
 
+	/**
+	 * @param localKey the localKey to set
+	 */
 	public void setLocalKey(String localKey) {
 		this.localKey = localKey;
 	}
 
+	/**
+	 * @return the needRemoteControl
+	 */
 	public Boolean getNeedRemoteControl() {
 		return needRemoteControl;
 	}
 
+	/**
+	 * @param needRemoteControl the needRemoteControl to set
+	 */
 	public void setNeedRemoteControl(Boolean needRemoteControl) {
 		this.needRemoteControl = needRemoteControl;
 	}
 
+	/**
+	 * @return the serialNo
+	 */
 	public String getSerialNo() {
 		return serialNo;
 	}
 
+	/**
+	 * @param serialNo the serialNo to set
+	 */
 	public void setSerialNo(String serialNo) {
 		this.serialNo = serialNo;
 	}
 
+	/**
+	 * @return the factoryId
+	 */
 	public Integer getFactoryId() {
-		return this.factoryId;
+		return factoryId;
 	}
 
+	/**
+	 * @param factoryId the factoryId to set
+	 */
 	public void setFactoryId(Integer factoryId) {
 		this.factoryId = factoryId;
 	}
 
+	/**
+	 * @return the type
+	 */
 	public Integer getType() {
 		return type;
 	}
 
+	/**
+	 * @param type the type to set
+	 */
 	public void setType(Integer type) {
 		this.type = type;
 	}
 
+	/**
+	 * @return the hardwareVer
+	 */
 	public String getHardwareVer() {
 		return hardwareVer;
 	}
 
+	/**
+	 * @param hardwareVer the hardwareVer to set
+	 */
 	public void setHardwareVer(String hardwareVer) {
 		this.hardwareVer = hardwareVer;
 	}
 
+	/**
+	 * @return the softwareVer
+	 */
 	public String getSoftwareVer() {
 		return softwareVer;
 	}
 
+	/**
+	 * @param softwareVer the softwareVer to set
+	 */
 	public void setSoftwareVer(String softwareVer) {
 		this.softwareVer = softwareVer;
 	}
 
+	/**
+	 * @return the tempKey
+	 */
 	public String getTempKey() {
 		return tempKey;
 	}
 
+	/**
+	 * @param tempKey the tempKey to set
+	 */
 	public void setTempKey(String tempKey) {
 		this.tempKey = tempKey;
 	}
 
+	/**
+	 * @return the bindTime
+	 */
 	public String getBindTime() {
 		return bindTime;
 	}
 
+	/**
+	 * @param bindTime the bindTime to set
+	 */
 	public void setBindTime(String bindTime) {
 		this.bindTime = bindTime;
 	}
 
+	/**
+	 * @return the totalOnlineTime
+	 */
 	public Long getTotalOnlineTime() {
 		return totalOnlineTime;
 	}
 
+	/**
+	 * @param totalOnlineTime the totalOnlineTime to set
+	 */
 	public void setTotalOnlineTime(Long totalOnlineTime) {
 		this.totalOnlineTime = totalOnlineTime;
 	}
 
+	/**
+	 * @return the internetIp
+	 */
 	public String getInternetIp() {
 		return internetIp;
 	}
 
+	/**
+	 * @param internetIp the internetIp to set
+	 */
 	public void setInternetIp(String internetIp) {
 		this.internetIp = internetIp;
 	}
 
+	/**
+	 * @return the gpsLat
+	 */
 	public Double getGpsLat() {
 		return gpsLat;
 	}
 
+	/**
+	 * @param gpsLat the gpsLat to set
+	 */
 	public void setGpsLat(Double gpsLat) {
 		this.gpsLat = gpsLat;
 	}
 
+	/**
+	 * @return the gpsLng
+	 */
 	public Double getGpsLng() {
 		return gpsLng;
 	}
 
+	/**
+	 * @param gpsLng the gpsLng to set
+	 */
 	public void setGpsLng(Double gpsLng) {
 		this.gpsLng = gpsLng;
 	}
 
+	/**
+	 * @return the country
+	 */
 	public String getCountry() {
 		return country;
 	}
 
+	/**
+	 * @param country the country to set
+	 */
 	public void setCountry(String country) {
 		this.country = country;
 	}
 
+	/**
+	 * @return the state
+	 */
 	public String getState() {
 		return state;
 	}
 
+	/**
+	 * @param state the state to set
+	 */
 	public void setState(String state) {
 		this.state = state;
 	}
 
+	/**
+	 * @return the city
+	 */
 	public String getCity() {
 		return city;
 	}
 
+	/**
+	 * @param city the city to set
+	 */
 	public void setCity(String city) {
 		this.city = city;
 	}
 
+	/**
+	 * @return the district
+	 */
 	public String getDistrict() {
 		return district;
 	}
 
+	/**
+	 * @param district the district to set
+	 */
 	public void setDistrict(String district) {
 		this.district = district;
 	}
 
+	/**
+	 * @return the image
+	 */
+	public String getImage() {
+		return image;
+	}
+
+	/**
+	 * @param image the image to set
+	 */
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+	/**
+	 * @return the online
+	 */
 	public Boolean getOnline() {
 		return online;
 	}
 
+	/**
+	 * @param online the online to set
+	 */
 	public void setOnline(Boolean online) {
 		this.online = online;
 	}
 
+	/**
+	 * @return the nodeType
+	 */
+	public Integer getNodeType() {
+		return nodeType;
+	}
+
+	/**
+	 * @param nodeType the nodeType to set
+	 */
+	public void setNodeType(Integer nodeType) {
+		this.nodeType = nodeType;
+	}
+
+	/**
+	 * @return the pid
+	 */
+	public Integer getPid() {
+		return pid;
+	}
+
+	/**
+	 * @param pid the pid to set
+	 */
+	public void setPid(Integer pid) {
+		this.pid = pid;
+	}
+
+	/**
+	 * @return the orderNo
+	 */
+	public Integer getOrderNo() {
+		return orderNo;
+	}
+
+	/**
+	 * @param orderNo the orderNo to set
+	 */
+	public void setOrderNo(Integer orderNo) {
+		this.orderNo = orderNo;
+	}
+
+	/**
+	 * @return the localIp
+	 */
+	public String getLocalIp() {
+		return localIp;
+	}
+
+	/**
+	 * @param localIp the localIp to set
+	 */
+	public void setLocalIp(String localIp) {
+		this.localIp = localIp;
+	}
+
+	/**
+	 * @return the lastTimestamp
+	 */
+	public long getLastTimestamp() {
+		return lastTimestamp;
+	}
+
+	/**
+	 * @param lastTimestamp the lastTimestamp to set
+	 */
+	public void setLastTimestamp(long lastTimestamp) {
+		this.lastTimestamp = lastTimestamp;
+	}
+
+	/**
+	 * @return the accessKey
+	 */
+	public String getAccessKey() {
+		return accessKey;
+	}
+
+	/**
+	 * @param accessKey the accessKey to set
+	 */
+	public void setAccessKey(String accessKey) {
+		this.accessKey = accessKey;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return the desc
+	 */
+	public String getDesc() {
+		return desc;
+	}
+
+	/**
+	 * @param desc the desc to set
+	 */
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ModuleInfo [moduleId=" + moduleId + ", mac=" + mac
+				+ ", localKey=" + localKey + ", needRemoteControl="
+				+ needRemoteControl + ", serialNo=" + serialNo + ", factoryId="
+				+ factoryId + ", type=" + type + ", hardwareVer=" + hardwareVer
+				+ ", softwareVer=" + softwareVer + ", tempKey=" + tempKey
+				+ ", bindTime=" + bindTime + ", totalOnlineTime="
+				+ totalOnlineTime + ", internetIp=" + internetIp + ", gpsLat="
+				+ gpsLat + ", gpsLng=" + gpsLng + ", country=" + country
+				+ ", state=" + state + ", city=" + city + ", district="
+				+ district + ", image=" + image + ", online=" + online
+				+ ", nodeType=" + nodeType + ", pid=" + pid + ", orderNo="
+				+ orderNo + ", localIp=" + localIp + ", lastTimestamp="
+				+ lastTimestamp + ", accessKey=" + accessKey + ", name=" + name
+				+ ", desc=" + desc + "]";
+	}
+
 	public void fromJson(JSONObject pl) {
-		try{this.id = pl.getString("moduleId");}catch(Exception e){}
+		try{this.moduleId = pl.getString("moduleId");}catch(Exception e){}
 		try{this.name = pl.getString("name");}catch(Exception e){}
 		try{this.desc = pl.getString("desc");}catch(Exception e){}
 		try{this.mac = pl.getString("mac");}catch(Exception e){}
@@ -337,8 +521,8 @@ public class ModuleInfo implements java.io.Serializable {
 
 	public String toJson() {
 		JSONObject json = new JSONObject();
-		if(id != null){
-			try{json.put ("moduleId", this.id);}catch(Exception e){}
+		if(moduleId != null){
+			try{json.put ("moduleId", this.moduleId);}catch(Exception e){}
 		}
 		if(accessKey != null){
 			try{json.put ("accessKey", this.accessKey);}catch(Exception e){}

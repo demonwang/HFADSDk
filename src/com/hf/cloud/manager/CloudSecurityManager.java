@@ -3,7 +3,6 @@ package com.hf.cloud.manager;
 import com.alibaba.fastjson.JSON;
 import com.hf.cloud.config.CloudConfig;
 import com.hf.cloud.exception.CloudException;
-import com.hf.cloud.message.base.Request;
 import com.hf.cloud.message.base.Response;
 import com.hf.cloud.message.security.CaptchaImageRequest;
 import com.hf.cloud.message.security.CaptchaResponse;
@@ -19,13 +18,10 @@ import com.hf.cloud.message.security.UserSetRequest;
 import com.hf.util.HFModuleException;
 import com.hf.util.HttpProxy;
 
-public class SecurityManager implements ISecurityManager {
-	
-	private CloudConfig cloudConfig;
+public class CloudSecurityManager extends BaseCloudManager implements ICloudSecurityManager {
 
-	public SecurityManager(CloudConfig cloudConfig) {
-		super();
-		this.cloudConfig = cloudConfig;
+	public CloudSecurityManager(CloudConfig cloudConfig) {
+		super(cloudConfig);
 	}
 
 	@Override
@@ -78,24 +74,6 @@ public class SecurityManager implements ISecurityManager {
 	@Override
 	public UserResponse getUser(UserGetRequest request) throws CloudException {
 		return postRequest(request, UserResponse.class);
-	}
-	
-	private <T extends Response> T postRequest(Request request, Class<T> clazz) throws CloudException {
-
-		String responseText;
-		try {
-			responseText = HttpProxy.reqByHttpPost(cloudConfig.cloudServiceUrl, cloudConfig.header, JSON.toJSONString(request));
-		} catch (HFModuleException e) {
-			e.printStackTrace();
-			throw new CloudException(e.getErrorCode());
-		}
-		
-		T response = JSON.parseObject(responseText, clazz);
-		if (response.getReturnCode() != UserIdResponse.RETURN_CODE_OK) {
-			throw new CloudException(response.getReturnCode(), response.getReason());
-		}else {
-			return response;	
-		}
 	}
 
 	@Override

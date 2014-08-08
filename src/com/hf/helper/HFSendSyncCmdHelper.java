@@ -101,7 +101,7 @@ public class HFSendSyncCmdHelper implements IHFSendSyncCmdHelper{
 			try {
 				return sendLocalMsg(mi, msg);
 			} catch (HFModuleException e) {
-				// TODO Auto-generated catch block
+				e.printStackTrace();
 				return sendServerMsg(mi, msg);
 			}
 		}

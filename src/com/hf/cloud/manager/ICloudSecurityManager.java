@@ -14,7 +14,7 @@ import com.hf.cloud.message.security.UserRegisterRequest;
 import com.hf.cloud.message.security.UserResponse;
 import com.hf.cloud.message.security.UserSetRequest;
 
-public interface ISecurityManager {
+public interface ICloudSecurityManager {
 
 	public CaptchaResponse getCaptcha(CaptchaTextRequest textRequest) throws CloudException;
 	public CaptchaResponse getCaptcha(CaptchaImageRequest imageRequest) throws CloudException;
