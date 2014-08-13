@@ -207,4 +207,6 @@ public interface IHFModuleHelper {
 	 * 
 	 */
 	public void updatNewModuleLocalIp();
+	
+	public ModuleInfo getModuleInfoByMac(String mac);
 }

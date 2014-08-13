@@ -63,7 +63,7 @@ public class HFModuleLocalManager implements IHFModuleLocalManager {
 	public IHFSMTLKHelper getHFSMTLKHelper() {
 		// TODO Auto-generated method stub
 		if(smartlinkHelper == null){
-			smartlinkHelper = new HFSMTLKHelper();
+			smartlinkHelper = new HFSMTLKHelper(null);
 		}
 		return smartlinkHelper;
 	}

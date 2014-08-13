@@ -5,6 +5,8 @@ import java.util.Random;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.hf.ManagerFactory;
 import com.hf.cmd.Flag;
 import com.hf.cmd.Head1;
@@ -19,6 +21,13 @@ import com.hf.util.HttpProxy;
 import com.hf.util.UdpProxy;
 
 public class HFSendSyncCmdHelper implements IHFSendSyncCmdHelper{
+	
+//	private Context context;
+//	
+//	public HFSendSyncCmdHelper(Context context) {
+//		super();
+//		this.context = context;
+//	}
 
 	@Override
 	public byte[] sendLocalMsg(ModuleInfo mi,byte[] msg) throws HFModuleException {
@@ -55,9 +64,9 @@ public class HFSendSyncCmdHelper implements IHFSendSyncCmdHelper{
 	@Override
 	public byte[] sendServerMsg(ModuleInfo mi, byte[] msg) throws HFModuleException {
 		// TODO Auto-generated method stub
-		if(!ManagerFactory.getInstance().getModuleManager().isCloudChannelLive()){
-			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "send ctrl msg to module err");
-		}
+//		if(!ManagerFactory.getManager(context, IHFModuleManager.class).isCloudChannelLive()){
+//			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "send ctrl msg to module err");
+//		}
 			JSONObject joReq = new JSONObject();
 			JSONObject pl = new JSONObject();
 		

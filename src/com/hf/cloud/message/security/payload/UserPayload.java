@@ -10,6 +10,8 @@ public class UserPayload {
 	private String email;
 	private String idNumber;
 	private String createTime;
+	private String id;
+	
 	/**
 	 * @return the accessKey
 	 */
@@ -118,15 +120,27 @@ public class UserPayload {
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
 	}
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "UserRegisterPayload [accessKey=" + accessKey + ", captcha="
-				+ captcha + ", displayName=" + displayName + ", userName="
-				+ userName + ", password=" + password + ", cellPhone="
-				+ cellPhone + ", email=" + email + ", idNumber=" + idNumber
-				+ ", createTime=" + createTime + "]";
+		return "UserPayload [accessKey=" + accessKey + ", captcha=" + captcha
+				+ ", displayName=" + displayName + ", userName=" + userName
+				+ ", password=" + password + ", cellPhone=" + cellPhone
+				+ ", email=" + email + ", idNumber=" + idNumber
+				+ ", createTime=" + createTime + ", id=" + id + "]";
 	}
 }

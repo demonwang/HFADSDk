@@ -1,10 +1,14 @@
 package com.hf.smartlink;
 
+import android.content.Context;
+
 import com.hf.ManagerFactory;
 import com.hf.data.HFConfigration;
 import com.hf.info.ModuleInfo;
 import com.hf.itf.IHFModuleEventListener;
+import com.hf.itf.IHFModuleManager;
 import com.hf.itf.IHFSMTLKHelper;
+import com.hf.manager.HFModuleManager;
 import com.hf.util.HFModuleException;
 import com.hf.util.UdpProxy;
 
@@ -27,6 +31,7 @@ public class HFSMTLKHelper implements IHFSMTLKHelper, IHFModuleEventListener {
 	private SoundFileBuilder sfb = new SoundFileBuilder(HFConfigration.appContex);
 	
 	private OnConnectedListener onConnectedListener;
+	private Context context;
 	
 	/**
 	 * @param onConnectedListener the onConnectedListener to set
@@ -35,6 +40,11 @@ public class HFSMTLKHelper implements IHFSMTLKHelper, IHFModuleEventListener {
 		this.onConnectedListener = onConnectedListener;
 	}
 	
+	public HFSMTLKHelper(Context context) {
+		super();
+		this.context = context;
+	}
+
 	@Override
 	public void startSmartlinkV30(String pswd) throws HFModuleException {
 		// TODO Auto-generated method stub
@@ -164,11 +174,11 @@ public class HFSMTLKHelper implements IHFSMTLKHelper, IHFModuleEventListener {
 	}
 	
 	private void registerModuleEventListener() {
-		ManagerFactory.getInstance().getModuleManager().registerEventListener(this);
+		ManagerFactory.getManager(context, IHFModuleManager.class).registerEventListener(this);
 	}
 	
 	private void unregisterModuleEventListener() {
-		ManagerFactory.getInstance().getModuleManager().unregisterEventListener(this);
+		ManagerFactory.getManager(context, IHFModuleManager.class).unregisterEventListener(this);
 	}
 
 	@Override

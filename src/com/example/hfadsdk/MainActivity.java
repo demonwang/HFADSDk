@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
 				}
 			});
 			
-			final IHFModuleManager moduleManager = ManagerFactory.getInstance().getModuleManager();
+			final IHFModuleManager moduleManager = ManagerFactory.getManager(getActivity(), IHFModuleManager.class);
 			moduleManager.registerEventListener(this);
 			new Thread(new Runnable() {
 				
@@ -122,7 +122,7 @@ public class MainActivity extends Activity {
 		public void onCloudLogin(boolean loginstat) {
 			// TODO Auto-generated method stub
 			Log.e("Fragment", "onCloudLogin");
-			ManagerFactory.getInstance().getModuleManager().unregisterEventListener(this);
+			ManagerFactory.getManager(getActivity(), IHFModuleManager.class).unregisterEventListener(this);
 			Intent i = new Intent(getActivity(), ModuleList.class);
 			startActivity(i);
 			new Thread(new Runnable() {

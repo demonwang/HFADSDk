@@ -3,6 +3,8 @@ package com.hf.helper;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import android.text.TextUtils;
+
 import com.hf.data.HFConfigration;
 import com.hf.info.ModuleInfo;
 import com.hf.itf.IHFModuleHelper;
@@ -315,5 +317,30 @@ public class HFModuleHelper implements IHFModuleHelper{
 		        }
 	        }
         }
+	}
+
+	@Override
+	public ModuleInfo getModuleInfoByMac(String mac) {
+		
+		if (TextUtils.isEmpty(mac)) {
+			throw new IllegalArgumentException("mac is Null or empty");
+		}
+		
+		ModuleInfo moduleInfo = getRemoteModuleInfoByMac(mac);
+		if (moduleInfo != null) {
+			return moduleInfo;
+		}
+		
+		moduleInfo = getMyLocalModuleInfoByMac(mac);
+		if (moduleInfo != null) {
+			return moduleInfo;
+		}
+
+		moduleInfo = getLocalModuleInfoByMac(mac);
+		if (moduleInfo != null) {
+			return moduleInfo;
+		}
+		
+		return null;
 	}
 }
