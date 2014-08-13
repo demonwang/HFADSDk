@@ -1,8 +1,8 @@
 package com.hf.itf;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.hf.dao.IUserInfoDao;
 import com.hf.info.KeyValueInfo;
 import com.hf.info.MessageReceiver;
 import com.hf.info.ModuleInfo;
@@ -148,7 +148,7 @@ public interface IHFModuleManager {
 	 * @return
 	 * @throws HFModuleException
 	 */
-	public List<ModuleInfo> getAllModule() throws HFModuleException;
+	public List<ModuleInfo> getAllModule(String sessionId) throws HFModuleException;
 	/**
 	 * get ModuleHelper  for (get set add delete )localData of ModuleInfo 
 	 * @return
@@ -178,4 +178,6 @@ public interface IHFModuleManager {
 	 * @return
 	 */
 	public boolean isCloudChannelLive();
+	
+	public IUserInfoDao getUserInfoDao();
 }

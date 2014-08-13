@@ -2,16 +2,28 @@ package com.hf.manager;
 
 import java.util.ArrayList;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.hf.ManagerFactory;
+import com.hf.dao.IUserInfoDao;
 import com.hf.helper.HFLocalSaveHelper;
 import com.hf.info.ModuleInfo;
+import com.hf.info.UserInfo;
+import com.hf.itf.IHFModuleManager;
 import com.hf.itf.IHFSFManager;
 import com.hf.util.HFModuleException;
 
 public class HISFManager implements IHFSFManager{
 	private int START_MODE = HISF_LOCAL_MODE;
+	
+	private Context context;
+	
+	public HISFManager(Context context) {
+		super();
+		this.context = context;
+	}
+
 	@Override
 	public int HISF_Start() throws HFModuleException {
 		// TODO Auto-generated method stub
@@ -64,7 +76,7 @@ public class HISFManager implements IHFSFManager{
 				ArrayList<ModuleInfo> locals  = HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getLocalModuleInfoHelper().getAll();
 				for(ModuleInfo mi : locals){
 					try {
-						ManagerFactory.getInstance().getModuleManager().setModule(mi);
+						ManagerFactory.getManager(context, IHFModuleManager.class).setModule(mi);
 						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getServerModuleInfoHelper().put(mi.getMac(), mi);
 						HFLocalSaveHelper.getInstence().getMainUserInfoHelper().getLocalModuleInfoHelper().remove(mi.getMac());						
 					} catch (Exception e) {
@@ -73,13 +85,19 @@ public class HISFManager implements IHFSFManager{
 					}			
 				}	
 				
-				try {
-					ManagerFactory.getInstance().getModuleManager().getAllModule();
-					li.onSyncSuccess();
-				} catch (HFModuleException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					li.onSyncErr();
+				IHFModuleManager moduleManager = ManagerFactory.getManager(context, IHFModuleManager.class);
+				IUserInfoDao userInfoDao = moduleManager.getUserInfoDao();
+				UserInfo currentUserInfo = userInfoDao.getActiveUserInfo();
+				if (currentUserInfo!=null && currentUserInfo.isTokenValid()) {
+
+					try {
+						moduleManager.getAllModule(currentUserInfo.getToken());
+						li.onSyncSuccess();
+					} catch (HFModuleException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						li.onSyncErr();
+					}
 				}
 			}
 		}).start();

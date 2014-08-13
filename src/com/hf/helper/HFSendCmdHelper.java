@@ -1,5 +1,6 @@
 package com.hf.helper;
 
+import com.hf.data.HFConfigration;
 import com.hf.itf.IHFSendAsyncCmdHelper;
 import com.hf.itf.IHFSendSyncCmdHelper;
 
@@ -18,7 +19,7 @@ public class HFSendCmdHelper{
 	public static IHFSendSyncCmdHelper getSendSyncCmdHelper() {
 		// TODO Auto-generated method stub
 		if(sndSyncCmdHelper == null){
-			sndSyncCmdHelper = new HFSendSyncCmdHelper();
+			sndSyncCmdHelper = new HFSendSyncCmdHelper(HFConfigration.appContex);
 		}
 		return sndSyncCmdHelper;
 	}

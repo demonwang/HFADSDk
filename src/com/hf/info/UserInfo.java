@@ -1,124 +1,289 @@
 package com.hf.info;
 
-public class UserInfo implements java.io.Serializable{
+import android.text.TextUtils;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable(tableName="UserInfo")
+public class UserInfo implements java.io.Serializable, Cloneable{
+	
 	private static final long serialVersionUID = 1L;
+	public static final long TOKEN_EXPIRED_TIME = 3600000;
+	
+	public static final String FIELD_USER_ID = "userId";
+	public static final String FIELD_TOKEN = "token";
+	public static final String FIELD_ACTIVE = "active";
 
-    private String id = null;
-    private String accessKey = null;
-    private String displayName = null;
-    private String userName = null;
-    private String password = null;
-    private String sharePassword = null;
-    private String sharePasswordAgingTime = null;   
-    private String cellPhone = null;
-    private String email = null;
-    private String idNumber = null;
-    private String createTime = null;
+	@DatabaseField(generatedId=true)
+	private long _id;
+	@DatabaseField
+    private String userId;
+	@DatabaseField
+    private String accessKey;
+	@DatabaseField
+    private String displayName;
+	@DatabaseField
+    private String userName;
+	@DatabaseField
+    private String password;
+	@DatabaseField
+    private String sharePassword;
+	@DatabaseField
+    private String sharePasswordAgingTime;
+	@DatabaseField
+    private String cellPhone;
+	@DatabaseField
+    private String email;
+	@DatabaseField
+    private String idNumber;
+	@DatabaseField
+    private String createTime;
+	@DatabaseField
+    private String token;
+	@DatabaseField
+    private long tokenExpiredTime;
+	@DatabaseField
+    private boolean active;
+	
+	/**
+	 * @return the _id
+	 */
+	public long get_id() {
+		return _id;
+	}
 
-    
-    @Override
-    public String toString(){
-        StringBuffer sb = new StringBuffer("UserInfo[");       
-        if(id         != null)sb.append("id=").append(id).append(",");      
-        if(accessKey  != null)sb.append("accessKey=").append(accessKey).append(",");    
-        if(displayName!= null)sb.append("displayName=").append(displayName).append(",");      
-        if(userName   != null)sb.append("userName=").append(userName).append(",");      
-        if(password   != null)sb.append("password=").append(password).append(",");      
-        if(sharePassword   != null)sb.append("sharePassword=").append(sharePassword).append(","); 
-        if(sharePasswordAgingTime   != null)sb.append("sharePasswordAgingTime=").append(sharePasswordAgingTime).append(",");   
-        if(cellPhone  != null)sb.append("cellPhone=").append(cellPhone).append(",");      
-        if(email      != null)sb.append("email=").append(email).append(",");    
-        if(idNumber   != null)sb.append("idNumber=").append(idNumber).append(",");      
-        if(createTime   != null)sb.append("createTime=").append(createTime);    
-        sb.append("]");
-        return sb.toString();
-    }
-    
-    
+	/**
+	 * @param _id the _id to set
+	 */
+	public void set_id(long _id) {
+		this._id = _id;
+	}
 
-    public String getId() {
-        return id;
-    }
+	/**
+	 * @return the userId
+	 */
+	@JSONField(name="id")
+	public String getUserId() {
+		return userId;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	/**
+	 * @param userId the userId to set
+	 */
+	@JSONField(name="id")
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
-    public String getAccessKey() {
+	/**
+	 * @return the accessKey
+	 */
+	public String getAccessKey() {
 		return accessKey;
 	}
 
+	/**
+	 * @param accessKey the accessKey to set
+	 */
 	public void setAccessKey(String accessKey) {
 		this.accessKey = accessKey;
 	}
 
+	/**
+	 * @return the displayName
+	 */
 	public String getDisplayName() {
-        return displayName;
-    }
+		return displayName;
+	}
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+	/**
+	 * @param displayName the displayName to set
+	 */
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
-    public String getUserName() {
-        return userName;
-    }
+	/**
+	 * @return the userName
+	 */
+	public String getUserName() {
+		return userName;
+	}
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
+	/**
+	 * @param userName the userName to set
+	 */
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	/**
+	 * @return the password
+	 */
+	public String getPassword() {
+		return password;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	/**
+	 * @param password the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public String getSharePassword() {
+	/**
+	 * @return the sharePassword
+	 */
+	public String getSharePassword() {
 		return sharePassword;
 	}
 
+	/**
+	 * @param sharePassword the sharePassword to set
+	 */
 	public void setSharePassword(String sharePassword) {
 		this.sharePassword = sharePassword;
 	}
+
+	/**
+	 * @return the sharePasswordAgingTime
+	 */
 	public String getSharePasswordAgingTime() {
 		return sharePasswordAgingTime;
 	}
+
+	/**
+	 * @param sharePasswordAgingTime the sharePasswordAgingTime to set
+	 */
 	public void setSharePasswordAgingTime(String sharePasswordAgingTime) {
 		this.sharePasswordAgingTime = sharePasswordAgingTime;
 	}
+
+	/**
+	 * @return the cellPhone
+	 */
 	public String getCellPhone() {
-        return cellPhone;
-    }
-    public void setCellPhone(String cellPhone) {
-        this.cellPhone = cellPhone;
-    }
+		return cellPhone;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	/**
+	 * @param cellPhone the cellPhone to set
+	 */
+	public void setCellPhone(String cellPhone) {
+		this.cellPhone = cellPhone;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	/**
+	 * @return the email
+	 */
+	public String getEmail() {
+		return email;
+	}
 
-    public String getIdNumber() {
-        return idNumber;
-    }
+	/**
+	 * @param email the email to set
+	 */
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public void setIdNumber(String idNumber) {
-        this.idNumber = idNumber;
-    }
+	/**
+	 * @return the idNumber
+	 */
+	public String getIdNumber() {
+		return idNumber;
+	}
 
+	/**
+	 * @param idNumber the idNumber to set
+	 */
+	public void setIdNumber(String idNumber) {
+		this.idNumber = idNumber;
+	}
+
+	/**
+	 * @return the createTime
+	 */
 	public String getCreateTime() {
 		return createTime;
 	}
 
+	/**
+	 * @param createTime the createTime to set
+	 */
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
 	}
 
- 
+	/**
+	 * @return the token
+	 */
+	public String getToken() {
+		return token;
+	}
+
+	/**
+	 * @param token the token to set
+	 */
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	/**
+	 * @return the tokenExpiredTime
+	 */
+	public long getTokenExpiredTime() {
+		return tokenExpiredTime;
+	}
+
+	/**
+	 * @param tokenExpiredTime the tokenExpiredTime to set
+	 */
+	public void setTokenExpiredTime(long tokenExpiredTime) {
+		this.tokenExpiredTime = tokenExpiredTime;
+	}
+
+	/**
+	 * @return the active
+	 */
+	public boolean isActive() {
+		return active;
+	}
+
+	/**
+	 * @param active the active to set
+	 */
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	
+	/**
+	 * @return true if only the user is active and has a token and also the token is not expired, otherwise false
+	 */
+	public boolean isTokenValid() {
+		return active && !TextUtils.isEmpty(token) && System.currentTimeMillis() < tokenExpiredTime;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "UserInfo [_id=" + _id + ", userId=" + userId + ", accessKey="
+				+ accessKey + ", displayName=" + displayName + ", userName="
+				+ userName + ", password=" + password + ", sharePassword="
+				+ sharePassword + ", sharePasswordAgingTime="
+				+ sharePasswordAgingTime + ", cellPhone=" + cellPhone
+				+ ", email=" + email + ", idNumber=" + idNumber
+				+ ", createTime=" + createTime + ", token=" + token
+				+ ", tokenExpiredTime=" + tokenExpiredTime + ", active="
+				+ active + "]";
+	}
+
+	@Override
+	protected UserInfo clone() throws CloneNotSupportedException {
+		return (UserInfo)super.clone();
+	}
 }

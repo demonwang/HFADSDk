@@ -54,6 +54,8 @@ import com.hf.cloud.message.security.payload.UserLoginPayload;
 import com.hf.cloud.message.security.payload.UserPayload;
 import com.hf.cmd.T1Message;
 import com.hf.cmd.T2Massage;
+import com.hf.dao.IUserInfoDao;
+import com.hf.dao.impl.UserInfoDao;
 import com.hf.data.HFConfigration;
 import com.hf.helper.HFLocalSaveHelper;
 import com.hf.helper.HFModuleHelper;
@@ -69,6 +71,7 @@ import com.hf.itf.IHFModuleEventListener;
 import com.hf.itf.IHFModuleHelper;
 import com.hf.itf.IHFModuleLocalManager;
 import com.hf.itf.IHFModuleManager;
+import com.hf.itf.IHFSFManager;
 import com.hf.itf.IHFSFManager.SyncModuleEventListener;
 import com.hf.lib.util.AES;
 import com.hf.util.ByteTool;
@@ -87,6 +90,9 @@ public class HFModuleManager implements IHFModuleManager {
 	private CloudService cloudService;
 	private ICloudSecurityManager cloudSecurityManager;
 	private ICloudModuleManager cloudModuleManager;
+	
+	private Context context;
+	private IUserInfoDao userInfoDao;
 
 	private void setSid(String sid) {
 		this.sid = sid;
@@ -95,11 +101,12 @@ public class HFModuleManager implements IHFModuleManager {
 	private String getsid() {
 		return this.sid;
 	}
-
 	
-	
-	public HFModuleManager() {
+	public HFModuleManager(Context context) {
 		super();
+		
+		this.context = context;
+		userInfoDao = new UserInfoDao(context);
 		cloudService = CloudService.getInstance();
 		
 		CloudConfig cloudConfig = new CloudConfig();
@@ -181,7 +188,7 @@ public class HFModuleManager implements IHFModuleManager {
 			HFLocalSaveHelper.getInstence().setAccesskey(
 					HFConfigration.accessKey);
 			HFLocalSaveHelper.getInstence().setIsregisted(true);
-			ManagerFactory.getInstance().getSFManager().syncRemoteModuleInfo(
+			ManagerFactory.getManager(context, IHFSFManager.class).syncRemoteModuleInfo(
 					new SyncModuleEventListener() {
 
 						@Override
@@ -198,8 +205,29 @@ public class HFModuleManager implements IHFModuleManager {
 					});
 			//[should remove these code later] the end 
 			
+			String sessionId = response.getSessionId();
+			String userId = response.getPayload().getUserId();
 			
-			return response.getSessionId();
+			UserInfo userInfo;
+			while ((userInfo = userInfoDao.getActiveUserInfo()) != null) {
+				userInfo.setActive(false);
+				userInfoDao.saveUserInfo(userInfo);
+			}
+			
+			userInfo = userInfoDao.getUserInfo(userId);
+			if (userInfo == null) {
+				userInfo = new UserInfo();
+				userInfo.setUserId(userId);
+			}
+			userInfo.setUserName(username);
+			userInfo.setPassword(password);
+			userInfo.setToken(sessionId);
+			userInfo.setTokenExpiredTime(System.currentTimeMillis() + UserInfo.TOKEN_EXPIRED_TIME);
+			userInfo.setActive(true);
+			userInfo.setAccessKey(payload.getAccessKey());
+			userInfoDao.saveUserInfo(userInfo);
+			
+			return sessionId;
 		} catch (CloudException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -236,6 +264,13 @@ public class HFModuleManager implements IHFModuleManager {
 //			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE,
 //					"User is not online");
 //		}
+
+		UserInfo userInfo;
+		while ((userInfo = userInfoDao.getActiveUserInfo()) != null) {
+			userInfo.setActive(false);
+			userInfo.setPassword(null);
+			userInfoDao.saveUserInfo(userInfo);
+		}
 		
 		UserLogoutRequest request = new UserLogoutRequest();
 		request.setSessionId(sessionId);
@@ -292,7 +327,11 @@ public class HFModuleManager implements IHFModuleManager {
 		
 		try {
 			UserIdResponse response = cloudSecurityManager.registerUser(registerRequest);
-			return response.getPayload().getUserId();
+			String userId = response.getPayload().getUserId();
+			userInfo.setUserId(userId);
+			userInfo.setAccessKey(payload.getAccessKey());
+			userInfoDao.saveUserInfo(userInfo);
+			return userId;
 		} catch (CloudException e) {
 			e.printStackTrace();
 			throw new HFModuleException(e.getErrorCode(), e.getMessage());
@@ -313,7 +352,20 @@ public class HFModuleManager implements IHFModuleManager {
 		try {
 			UserResponse response = cloudSecurityManager.getUser(request);
 			UserPayload payload = response.getPayload();
-			UserInfo userInfo = new UserInfo();
+			
+//			UserInfo userInfo = new UserInfo();
+//			userInfo.setAccessKey(HFConfigration.accessKey);
+//			userInfo.setCellPhone(payload.getCellPhone());
+//			userInfo.setCreateTime(payload.getCreateTime());
+//			userInfo.setDisplayName(payload.getDisplayName());
+//			userInfo.setEmail(payload.getEmail());
+//			userInfo.setIdNumber(payload.getIdNumber());
+//			userInfo.setUserName(payload.getUserName());
+			
+			UserInfo userInfo = userInfoDao.getUserInfoByToken(sessionId);
+			if (userInfo == null) {
+				userInfo = new UserInfo();
+			}
 			userInfo.setAccessKey(HFConfigration.accessKey);
 			userInfo.setCellPhone(payload.getCellPhone());
 			userInfo.setCreateTime(payload.getCreateTime());
@@ -321,6 +373,9 @@ public class HFModuleManager implements IHFModuleManager {
 			userInfo.setEmail(payload.getEmail());
 			userInfo.setIdNumber(payload.getIdNumber());
 			userInfo.setUserName(payload.getUserName());
+			
+			userInfoDao.saveUserInfo(userInfo);
+			
 			return userInfo;
 		} catch (CloudException e1) {
 			// TODO Auto-generated catch block
@@ -394,6 +449,8 @@ public class HFModuleManager implements IHFModuleManager {
 //		}
 		
 		UserPayload payload = new UserPayload();
+		
+//		UserInfo payload = new UserInfo();
 		payload.setCellPhone(userInfo.getCellPhone());
 		payload.setDisplayName(userInfo.getDisplayName());
 		payload.setEmail(userInfo.getEmail());
@@ -407,6 +464,15 @@ public class HFModuleManager implements IHFModuleManager {
 		request.setPayload(payload);
 		try {
 			cloudSecurityManager.setUser(request);
+			
+			UserInfo savedUserInfo = userInfoDao.getUserInfoByToken(sessionId);
+			if (savedUserInfo != null) {
+				savedUserInfo.setCellPhone(userInfo.getCellPhone());
+				savedUserInfo.setDisplayName(userInfo.getDisplayName());
+				savedUserInfo.setEmail(userInfo.getEmail());
+				savedUserInfo.setIdNumber(userInfo.getIdNumber());
+				userInfoDao.saveUserInfo(savedUserInfo);
+			}
 		} catch (CloudException e) {
 			e.printStackTrace();
 			throw new HFModuleException(e.getErrorCode(), e.getMessage());
@@ -869,7 +935,7 @@ public class HFModuleManager implements IHFModuleManager {
 	}
 
 	@Override
-	public List<ModuleInfo> getAllModule() throws HFModuleException {
+	public List<ModuleInfo> getAllModule(String sessionId) throws HFModuleException {
 		// TODO Auto-generated method stub
 		Log.d("HFModuleManager", "getAllModule");
 //		if (!this.isCloudChannelLive()) {
@@ -878,6 +944,7 @@ public class HFModuleManager implements IHFModuleManager {
 //		}
 		
 		ModuleGetAllRequest request = new ModuleGetAllRequest();
+		request.setSessionId(sessionId);
 		try {
 			ModuleGetAllResponse response = cloudModuleManager.getAllModule(request);
 			List<ModuleInfo> modules = response.getPayload(); 
@@ -954,7 +1021,7 @@ public class HFModuleManager implements IHFModuleManager {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			while (isAppRunning) { Log.d("beatThread", "beatThread..");
+			while (isAppRunning) {// Log.d("beatThread", "beatThread..");
 				byte[] data = "~@@Hello,Thing!**#".getBytes();
 				ByteBuffer bf = ByteBuffer.allocate(3 + data.length);
 				bf.put((byte) 0x01);
@@ -965,7 +1032,7 @@ public class HFModuleManager implements IHFModuleManager {
 						bf.array().length, HFConfigration.broudcastIp,
 						HFConfigration.localUDPPort);
 
-				IHFModuleHelper moduleHelper = ManagerFactory.getInstance().getModuleManager().getHFModuleHelper();
+				IHFModuleHelper moduleHelper = getHFModuleHelper();
 				moduleHelper.updatRemoteModuleLocalIp();
 				moduleHelper.updatLocalMyModuleLocalIp();
 				moduleHelper.updatLocalModuleLocalIp();
@@ -1055,10 +1122,10 @@ public class HFModuleManager implements IHFModuleManager {
 			msg.unpack(t1);
 			String mac = msg.getH1().getMac();
 			int deviceBelongType = 1;
-			ModuleInfo mi = ManagerFactory.getInstance().getModuleManager().getHFModuleHelper()
+			ModuleInfo mi = getHFModuleHelper()
 					.getRemoteModuleInfoByMac(mac);
 			if (mi == null) {
-				mi = ManagerFactory.getInstance().getModuleManager().getHFModuleHelper()
+				mi = getHFModuleHelper()
 						.getMyLocalModuleInfoByMac(mac);
 				deviceBelongType = 2;
 			}
@@ -1275,5 +1342,10 @@ public class HFModuleManager implements IHFModuleManager {
 			Log.e("isCloudChannelLive", getsid());
 			return true;
 		}
+	}
+
+	@Override
+	public IUserInfoDao getUserInfoDao() {
+		return userInfoDao;
 	}
 }

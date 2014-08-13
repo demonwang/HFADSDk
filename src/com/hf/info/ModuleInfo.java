@@ -7,6 +7,7 @@ import com.hf.lib.util.AES;
 public class ModuleInfo implements java.io.Serializable {
 	
 	public static final int TYPE_HF_SMART_LIGHT_WIFI_CT = 0x201;
+	public static final int TYPE_HF_SMART_LIGHT_WIFI_RGB = 0x202;
 	public static final int TYPE_HF_SMART_LIGHT_WIFI_RGBW = 0x205;
 	public static final int TYPE_HF_SMART_LIGHT_WIFI_RGBW_CT = 0x206;
 	public static final int TYPE_HF_SMART_LIGHT_GATEWAY_WIFI = 0x301;

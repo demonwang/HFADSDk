@@ -1,24 +1,38 @@
 package com.hf.helper;
 
+import java.util.HashMap;
 import java.util.Random;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import android.content.Context;
 
 import com.hf.ManagerFactory;
+import com.hf.cloud.CloudService;
+import com.hf.cloud.exception.CloudException;
+import com.hf.cloud.manager.ICloudDeviceManager;
+import com.hf.cloud.message.device.DeviceResponse;
+import com.hf.cloud.message.device.DeviceSetRequest;
 import com.hf.cmd.Flag;
 import com.hf.cmd.Head1;
 import com.hf.cmd.Head2;
 import com.hf.cmd.T1Message;
 import com.hf.info.ModuleInfo;
 import com.hf.itf.IHFSendSyncCmdHelper;
-import com.hf.manager.HFModuleManager;
+import com.hf.lib.util.HexBin;
 import com.hf.util.ByteTool;
 import com.hf.util.HFModuleException;
-import com.hf.util.HttpProxy;
 import com.hf.util.UdpProxy;
 
 public class HFSendSyncCmdHelper implements IHFSendSyncCmdHelper{
+	
+	private Context context;
+	private ICloudDeviceManager cloudDeviceManager;
+	
+	public HFSendSyncCmdHelper(Context context) {
+		super();
+		this.context = context;
+		cloudDeviceManager = ManagerFactory.getManager(this.context, CloudService.class).getCloudDeviceManager();
+	}
 
 	@Override
 	public byte[] sendLocalMsg(ModuleInfo mi,byte[] msg) throws HFModuleException {
@@ -55,41 +69,60 @@ public class HFSendSyncCmdHelper implements IHFSendSyncCmdHelper{
 	@Override
 	public byte[] sendServerMsg(ModuleInfo mi, byte[] msg) throws HFModuleException {
 		// TODO Auto-generated method stub
-		if(!ManagerFactory.getInstance().getModuleManager().isCloudChannelLive()){
-			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "send ctrl msg to module err");
-		}
-			JSONObject joReq = new JSONObject();
-			JSONObject pl = new JSONObject();
-		
-			try {
-				joReq.put("CID", 20011);
-				joReq.put("SID", HFModuleManager.sid);
-				pl.put(mi.getMac(), ByteTool.bytes2HexString(msg));
-				joReq.put("PL", pl);
-				
-				String req = joReq.toString();
-
-				String rsp = HttpProxy.reqByHttpPost(req);
-				JSONObject jo = new JSONObject(rsp);
-
-				if(jo.isNull("RC")){
-					throw new HFModuleException(HFModuleException.ERR_SEND_SERVER_MSG, "send ctrl msg to module err");
-				}
-				if (jo.getInt("RC") == 1) {
-
-					JSONObject joPl = jo.getJSONObject("PL");
-					if(joPl.isNull(mi.getMac())){
-						throw new HFModuleException(HFModuleException.ERR_SEND_SERVER_MSG, "send ctrl msg to module err");
-					}else{
-						return ByteTool.hexStringToBytes(jo.getString(mi.getMac()));
-					}
-				} else {
-					throw new HFModuleException(HFModuleException.ERR_SEND_SERVER_MSG, "send ctrl msg to module err");
-				}			
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				throw new HFModuleException(HFModuleException.ERR_SEND_SERVER_MSG, "send ctrl msg to module err");
+//		if(!ManagerFactory.getManager(context, IHFModuleManager.class).isCloudChannelLive()){
+//			throw new HFModuleException(HFModuleException.ERR_USER_OFFLINE, "send ctrl msg to module err");
+//		}
+		HashMap<String, String> payload = new HashMap<String, String>();
+		payload.put(mi.getMac(), HexBin.bytesToString(msg));
+		DeviceSetRequest request = new DeviceSetRequest();
+		request.setSessionId(UserHelper.getCurrentUserToken(context));
+		request.setPayload(payload);
+		try {
+			DeviceResponse response = cloudDeviceManager.setDevice(request);
+			String value = response.getPayload().get(mi.getMac());
+			if (value == null) {
+				return null;
+			}else {
+				return HexBin.stringToBytes(response.getPayload().get(mi.getMac()));
 			}
+		} catch (CloudException e1) {
+			e1.printStackTrace();
+			throw new HFModuleException(e1.getErrorCode(), e1.getMessage());
+		}
+//		
+//		
+//			JSONObject joReq = new JSONObject();
+//			JSONObject pl = new JSONObject();
+//		
+//			try {
+//				joReq.put("CID", 20031);
+//				joReq.put("SID", HFModuleManager.sid);
+//				pl.put(mi.getMac(), ByteTool.bytes2HexString(msg));
+//				joReq.put("PL", pl);
+//				
+//				String req = joReq.toString();
+//
+//				String rsp = HttpProxy.reqByHttpPost(req);
+//				JSONObject jo = new JSONObject(rsp);
+//
+//				if(jo.isNull("RC")){
+//					throw new HFModuleException(HFModuleException.ERR_SEND_SERVER_MSG, "send ctrl msg to module err");
+//				}
+//				if (jo.getInt("RC") == 1) {
+//
+//					JSONObject joPl = jo.getJSONObject("PL");
+//					if(joPl.isNull(mi.getMac())){
+//						throw new HFModuleException(HFModuleException.ERR_SEND_SERVER_MSG, "send ctrl msg to module err");
+//					}else{
+//						return ByteTool.hexStringToBytes(jo.getString(mi.getMac()));
+//					}
+//				} else {
+//					throw new HFModuleException(HFModuleException.ERR_SEND_SERVER_MSG, "send ctrl msg to module err");
+//				}			
+//			} catch (JSONException e) {
+//				// TODO Auto-generated catch block
+//				throw new HFModuleException(HFModuleException.ERR_SEND_SERVER_MSG, "send ctrl msg to module err");
+//			}
 	}
 
 	@Override

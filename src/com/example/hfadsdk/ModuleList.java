@@ -10,6 +10,8 @@ import com.hf.info.KeyValueInfo;
 import com.hf.info.ModuleInfo;
 import com.hf.info.UserInfo;
 import com.hf.itf.IHFModuleHelper;
+import com.hf.itf.IHFModuleManager;
+import com.hf.manager.HFModuleManager;
 import com.hf.util.ByteTool;
 import com.hf.util.HFModuleException;
 
@@ -40,7 +42,7 @@ public class ModuleList extends Activity {
 		setContentView(R.layout.module_list_layout);
 		modulelist = (ListView) findViewById(R.id.modulelist);
 
-		IHFModuleHelper moduleHelper = ManagerFactory.getInstance().getModuleManager().getHFModuleHelper();
+		IHFModuleHelper moduleHelper = ManagerFactory.getManager(this, IHFModuleManager.class).getHFModuleHelper();
 		remote = moduleHelper.getAllRemoteModuleInfo();
 		mylocal = moduleHelper.getMyLocalModuleInfoAll();
 		local = moduleHelper.getAllLocalModuleInfo();
@@ -64,7 +66,7 @@ public class ModuleList extends Activity {
 					public void run() {
 						// TODO Auto-generated method stub
 						try {
-							ManagerFactory.getInstance().getModuleManager().deleteModule(mis.get(position).getMac());
+							ManagerFactory.getManager(ModuleList.this, IHFModuleManager.class).deleteModule(mis.get(position).getMac());
 						} catch (HFModuleException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

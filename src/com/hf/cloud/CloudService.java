@@ -1,6 +1,8 @@
 package com.hf.cloud;
 
 import com.hf.cloud.config.CloudConfig;
+import com.hf.cloud.manager.CloudDeviceManager;
+import com.hf.cloud.manager.ICloudDeviceManager;
 import com.hf.cloud.manager.ICloudModuleManager;
 import com.hf.cloud.manager.ICloudSecurityManager;
 import com.hf.cloud.manager.CloudModuleManager;
@@ -40,5 +42,9 @@ public class CloudService {
 
 	public ICloudModuleManager getCloudModuleManager() {
 		return new CloudModuleManager(getConfig());
+	}
+
+	public ICloudDeviceManager getCloudDeviceManager() {
+		return new CloudDeviceManager(getConfig());
 	}
 }
